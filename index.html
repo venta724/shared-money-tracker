@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js"></script>
 
     <style>
-        /* --- CSS (Keep all existing CSS rules the same as before) --- */
+        /* --- CSS --- */
         :root { /* Light Mode Defaults */
             --color-primary: #4CAF50; --color-primary-dark: #45a049;
             --color-secondary: #2196F3; --color-secondary-dark: #1976d2; --color-secondary-light: #e3f2fd; --color-secondary-border: #bbdefb;
@@ -82,9 +82,9 @@
         .tab.tab-income:not(.active):hover { background-color: var(--color-secondary-border); }
         .form-container { display: none; border: 1px solid var(--color-grey-border); padding: var(--gap-xl); border-radius: var(--border-radius-md); margin-bottom: var(--gap-xl); background-color: var(--color-grey-light); transition: background-color 0.3s, border-color 0.3s; }
         .form-container.active { display: block; }
-        .form-container input, .form-container select, .form-container textarea { margin-bottom: var(--gap-md); }
-        .form-container .user-selector { margin-bottom: var(--gap-md); }
-        .form-container button { width: 100%; background: var(--color-info); color: var(--color-white); border: none; }
+        .form-container input, .form-container select, .form-container textarea { margin-bottom: var(--gap-md); } /* Keep margin for spacing */
+        /* .form-container .user-selector { margin-bottom: var(--gap-md); } */ /* Redundant */
+        .form-container button { width: 100%; background: var(--color-info); color: var(--color-white); border: none; margin-top: var(--gap-sm); } /* Add margin-top to button if needed */
         .form-container button:hover { background: var(--color-info-dark); }
         .filter-container { display: flex; flex-direction: column; gap: var(--gap-md); margin-bottom: var(--gap-xl); padding: var(--gap-lg); background: var(--color-grey-light); border-radius: var(--border-radius-md); transition: background-color 0.3s; }
         .filter-row { display: flex; flex-wrap: wrap; gap: var(--gap-sm); align-items: center; }
@@ -195,28 +195,20 @@
         </div>
 
         <div id="expense-form" class="form-container active">
-             <label for="expense-user">User:</label> <select id="expense-user" class="user-selector" title="Select User"> </select>
-             <label for="expense-amount">Amount:</label>
-             <input type="number" id="expense-amount" placeholder="Amount" step="0.01" min="0">
-             <label for="expense-category">Category:</label>
+             <select id="expense-user" class="user-selector" title="User"> </select>
+             <input type="number" id="expense-amount" placeholder="Amount" title="Amount" step="0.01" min="0">
              <select id="expense-category" title="Select Category"> </select>
-             <label for="expense-date">Date:</label>
              <input type="date" id="expense-date" title="Select Date">
-             <label for="expense-note">Note (optional):</label>
-             <textarea id="expense-note" placeholder="Note (optional)" rows="2"></textarea>
+             <textarea id="expense-note" placeholder="Note (optional)" title="Note" rows="2"></textarea>
              <button id="add-expense-btn">Add Expense</button>
         </div>
 
         <div id="income-form" class="form-container">
-            <label for="income-user">User:</label> <select id="income-user" class="user-selector" title="Select User"> </select>
-            <label for="income-amount">Amount:</label>
-            <input type="number" id="income-amount" placeholder="Amount" step="0.01" min="0">
-            <label for="income-category">Category:</label>
+            <select id="income-user" class="user-selector" title="User"> </select>
+            <input type="number" id="income-amount" placeholder="Amount" title="Amount" step="0.01" min="0">
             <select id="income-category" title="Select Category"> </select>
-            <label for="income-date">Date:</label>
             <input type="date" id="income-date" title="Select Date">
-            <label for="income-note">Note (optional):</label>
-            <textarea id="income-note" placeholder="Note (optional)" rows="2"></textarea>
+            <textarea id="income-note" placeholder="Note (optional)" title="Note" rows="2"></textarea>
             <button id="add-income-btn">Add Income</button>
         </div>
 
@@ -228,7 +220,7 @@
                 <button class="time-filter-btn" id="yearly-btn" data-filter="yearly" title="Filter by Year">Yearly</button>
             </div>
              <div class="filter-row">
-                <label for="user-filter" style="font-size: var(--font-size-sm); margin-right: var(--gap-xs);">User:</label>
+                <label for="user-filter" style="font-size: var(--font-size-sm); margin-right: var(--gap-xs);">Filter User:</label>
                 <select class="filter-select" id="user-filter" title="Filter by User" style="width: auto; flex-grow: 1;"> </select>
             </div>
             <div class="filter-row">
@@ -277,19 +269,17 @@
 
         // --- Application Configuration & Constants ---
         const AppConfig = {
-            // IMPORTANT: Replace with YOUR actual deployed Apps Script Web App URL
-            apiUrl: 'YOUR_DEPLOYED_APPS_SCRIPT_URL',
-            // IMPORTANT: Use the SAME secret here as in your Code.gs file
-            apiSecret: 'Korng2105a', // KEEP THIS CONSISTENT WITH Code.gs
+            // Your specific API URL and Secret provided
+            apiUrl: 'https://script.google.com/macros/s/AKfycbxXeX93LF2VQiSJz6yxetefR7Y8Ic8F8ulHmW_ITglXKfqHYYhsQg6zuxpPkrWM5gooNQ/exec',
+            apiSecret: 'Korng2105a',
+            // --- Other configurations ---
             animationDuration: 400,
             staggerDelayIncrement: 50,
             notificationDuration: 3000,
             yearSelectorRange: 5,
-            // Make sure these categories match your usage
             expenseCategories: ["Food & Drink", "Gas", "Personal Care", "Shopping", "Health Care", "Pay Loan", "Other"],
             incomeCategories: ["Salary", "Part-time", "Gift", "Loan", "Other"],
-             // Roles MUST match keys in USER_ROLES in Code.gs (case-sensitive)
-            users: ["Husband", "Wife"]
+            users: ["Husband", "Wife"] // Roles MUST match keys in USER_ROLES in Code.gs
         };
 
         // --- Global State Variables ---
@@ -307,10 +297,9 @@
 
         // --- SECTION: Initialization ---
         async function initializeApp() {
-             if (!AppConfig.apiUrl || AppConfig.apiUrl === 'https://script.google.com/macros/s/AKfycbxXeX93LF2VQiSJz6yxetefR7Y8Ic8F8ulHmW_ITglXKfqHYYhsQg6zuxpPkrWM5gooNQ/exec' || !AppConfig.apiSecret || AppConfig.apiSecret === 'Korng2105a') {
-                showNotification('CRITICAL ERROR: API URL or Secret not configured in HTML! Please edit the AppConfig.', 'error', 10000);
-                console.error("Configuration Error: Please verify `apiUrl` and `apiSecret` in AppConfig.");
-                setLoadingState(false); // Allow interaction maybe? Or just show error.
+             if (!AppConfig.apiUrl || AppConfig.apiUrl === 'YOUR_DEPLOYED_APPS_SCRIPT_URL') { // Basic check
+                showNotification('CRITICAL ERROR: API URL not configured correctly in HTML!', 'error', 10000);
+                console.error("Configuration Error: Please verify `apiUrl` in AppConfig.");
                 return; // Stop initialization
             }
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -336,10 +325,13 @@
 
             const expenseCatSelect = elements.expenseCategory;
             expenseCatSelect.innerHTML = ''; // Clear existing options
+             // Add a default placeholder option for category selects
+             expenseCatSelect.appendChild(new Option('Select Category', '', true, true)).disabled = true;
             AppConfig.expenseCategories.forEach(cat => expenseCatSelect.appendChild(new Option(cat, cat)));
 
             const incomeCatSelect = elements.incomeCategory;
             incomeCatSelect.innerHTML = ''; // Clear existing options
+             incomeCatSelect.appendChild(new Option('Select Category', '', true, true)).disabled = true;
             AppConfig.incomeCategories.forEach(cat => incomeCatSelect.appendChild(new Option(cat, cat)));
             console.log("Dropdowns populated.");
         }
@@ -357,9 +349,9 @@
                 if (!control.closest('.modal-actions .cancel-btn') && control.id !== 'theme-checkbox') {
                     control.disabled = loading;
                 }
-                 // Ensure user dropdowns remain disabled if they were set by autoSelectUserForms
+                 // Ensure user dropdowns remain ENABLED after loading finishes (re-apply auto-select logic)
                 if (loading === false && (control.id === 'expense-user' || control.id === 'income-user')) {
-                    autoSelectUserForms(); // Re-apply disabled state after loading finishes
+                    autoSelectUserForms(); // Re-apply auto-select logic which sets enabled state
                 }
             });
         }
@@ -373,7 +365,7 @@
 
             try {
                 const url = `${AppConfig.apiUrl}?action=getTransactions&secret=${encodeURIComponent(AppConfig.apiSecret)}`;
-                console.log("Fetching from URL:", url); // Log URL for debugging
+                console.log("Fetching from URL:", url);
                 const response = await fetch(url);
 
                 if (!response.ok) {
@@ -392,9 +384,7 @@
                 if (result.status === 'success' && Array.isArray(result.data)) {
                     transactions = result.data.map(item => {
                         let formattedDate = '';
-                        // Ensure Date is correctly formatted as YYYY-MM-DD
                         if (item.Date) {
-                            // Try parsing common formats or assume it's YYYY-MM-DD if string
                             const dateObj = dayjs(item.Date instanceof Date ? item.Date : String(item.Date));
                             if (dateObj.isValid()) {
                                 formattedDate = dateObj.format('YYYY-MM-DD');
@@ -423,12 +413,12 @@
                     transactions.sort((a, b) => b.Timestamp - a.Timestamp); // Sort by timestamp descending
                     console.log("Processed transactions array:", transactions);
 
-                    // ---> CAPTURE User Role <---
+                    // CAPTURE User Role
                     loggedInUserRole = result.userRole || null;
                     console.log("Logged in user role received:", loggedInUserRole);
 
-                    // ---> Auto-select user in forms AFTER role is known <---
-                    autoSelectUserForms(); // Set and disable user dropdowns
+                    // Auto-select user in forms AFTER role is known
+                    autoSelectUserForms(); // Set and ensure dropdowns are ENABLED
 
                 } else {
                      console.error("API returned success=false or invalid data structure:", result.message || 'Unknown error');
@@ -438,8 +428,7 @@
                 console.error("Error loading transactions:", error);
                 showNotification(`Error loading data: ${error.message}`, "error", 5000);
                 transactions = []; // Clear transactions on error
-                // Attempt to set default user state even on error (might clear selection if role unknown)
-                autoSelectUserForms();
+                autoSelectUserForms(); // Attempt to set default user state (will likely enable dropdowns if role unknown)
             } finally {
                 setLoadingState(false);
                 applyFiltersAndRender(); // Render whatever data we have (or empty list)
@@ -449,1456 +438,341 @@
         /** Adds a new transaction via API */
         async function addTransaction(type) {
              if (isLoading) return;
-
-             // Determine form elements based on type
             const userSelect = (type === 'expense') ? elements.expenseUser : elements.incomeUser;
             const amountInput = (type === 'expense') ? elements.expenseAmount : elements.incomeAmount;
             const categoryInput = (type === 'expense') ? elements.expenseCategory : elements.incomeCategory;
             const dateInput = (type === 'expense') ? elements.expenseDate : elements.incomeDate;
             const noteInput = (type === 'expense') ? elements.expenseNote : elements.incomeNote;
 
-            // Get values - User should be pre-filled and disabled, read its value
-            const user = userSelect.value; // Read the value from the (potentially disabled) select
+            const user = userSelect.value; // Read value from the ENABLED select
             const amount = parseFloat(amountInput.value);
-            const category = categoryInput.value || 'Uncategorized'; // Default category if needed
-            const date = dateInput.value; // Should be YYYY-MM-DD
+            const category = categoryInput.value; // Read selected category
+            const date = dateInput.value;
             const note = noteInput.value.trim();
 
             // Validation
-             if (!user || !AppConfig.users.includes(user)) { // Check against configured users
-                showNotification('User role seems invalid. Please reload.', 'error'); return;
+             if (!user || !AppConfig.users.includes(user)) {
+                showNotification('Please select a valid user.', 'error'); return;
             }
             if (!amount || amount <= 0) { showNotification('Please enter a valid positive amount.', 'error'); return; }
+             if (!category) { // Check if a category is selected (since placeholder is disabled)
+                 showNotification('Please select a category.', 'error'); return;
+             }
             if (!date || !isValidDate(date)) { showNotification('Please select a valid date.', 'error'); return; }
 
             setLoadingState(true);
-
-            // Prepare data payload
             const transactionData = {
-                Timestamp: dayjs().valueOf(), // Current timestamp for sorting/creation time
-                Date: date, // YYYY-MM-DD string
-                Type: type,
-                Amount: amount,
-                Category: category,
-                Note: note,
-                User: user // User determined by logged-in role
+                Timestamp: dayjs().valueOf(), Date: date, Type: type, Amount: amount, Category: category, Note: note, User: user
             };
 
             try {
                 const response = await fetch(AppConfig.apiUrl, {
-                    method: 'POST',
-                    mode: 'cors', // Required for cross-origin requests to Apps Script
-                    cache: 'no-cache',
-                    headers: {
-                        // Apps Script typically expects text/plain for simple POST forwarding
-                        // but sending JSON is cleaner if the script handles it (updated Code.gs does)
-                       'Content-Type': 'application/json', // Send as JSON
-                    },
-                    // Stringify the entire payload including action, secret, and data
-                    body: JSON.stringify({
-                        action: 'addTransaction',
-                        secret: AppConfig.apiSecret,
-                        data: transactionData
-                    })
+                    method: 'POST', mode: 'cors', cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json', },
+                    body: JSON.stringify({ action: 'addTransaction', secret: AppConfig.apiSecret, data: transactionData })
                 });
-
                  if (!response.ok) {
                      let errorMsg = `HTTP error! ${response.status}`;
                      try { const errRes = await response.json(); errorMsg = errRes.message || errorMsg; } catch (e) {}
                      throw new Error(errorMsg);
                  }
-
                 const result = await response.json();
                  console.log("Add Transaction API response:", result);
-
                 if (result.status === 'success' && result.data && result.data.ID) {
-                    // Process the returned data (backend assigns ID and confirms Timestamp)
-                     const newTx = {
-                         ...result.data,
-                         ID: String(result.data.ID), // Ensure string ID
-                         Timestamp: parseInt(result.data.Timestamp) || 0, // Ensure number Timestamp
-                         Amount: parseFloat(result.data.Amount) || 0, // Ensure number Amount
-                     };
-                    transactions.unshift(newTx); // Add to beginning of local array
-                    transactions.sort((a, b) => b.Timestamp - a.Timestamp); // Re-sort
-
+                     const newTx = { ...result.data, ID: String(result.data.ID), Timestamp: parseInt(result.data.Timestamp) || 0, Amount: parseFloat(result.data.Amount) || 0, };
+                    transactions.unshift(newTx);
+                    transactions.sort((a, b) => b.Timestamp - a.Timestamp);
                     showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully!`, 'success');
-
-                    // Clear relevant form fields (but not the user)
+                    // Clear form fields (keep auto-selected user)
                     amountInput.value = '';
                     noteInput.value = '';
-                    dateInput.value = dayjs().format('YYYY-MM-DD'); // Reset date to today
-                    categoryInput.selectedIndex = 0; // Reset category dropdown
+                    dateInput.value = dayjs().format('YYYY-MM-DD');
+                    categoryInput.value = ''; // Reset category dropdown to placeholder
                 } else {
-                    throw new Error(result.message || 'Failed to add transaction. Invalid response from server.');
+                    throw new Error(result.message || 'Failed to add transaction.');
                 }
             } catch (error) {
                 console.error("Error adding transaction:", error);
                 showNotification(`Error adding transaction: ${error.message}`, "error", 5000);
             } finally {
                 setLoadingState(false);
-                applyFiltersAndRender(); // Update list and summary
+                applyFiltersAndRender();
             }
         }
 
         /** Saves edited transaction via API */
         async function saveEditedTransaction() {
             if (isLoading) return;
-
-            const id = elements.editId.value; // ID is already string from hidden input/dataset
+            const id = elements.editId.value;
             const amount = parseFloat(elements.editAmount.value);
             const categorySelect = document.getElementById('edit-category-select'); // Dynamic element
             const category = categorySelect ? categorySelect.value : 'Uncategorized';
-            const date = elements.editDate.value; // Should be YYYY-MM-DD
+            const date = elements.editDate.value;
             const note = elements.editNote.value.trim();
 
             // Validation
             if (!id) { showNotification('Error: Transaction ID missing.', 'error'); return; }
             if (!amount || amount <= 0) { showNotification('Please enter a valid positive amount.', 'error'); return; }
+             if (!category) { showNotification('Please select a category.', 'error'); return; }
             if (!date || !isValidDate(date)) { showNotification('Please select a valid date.', 'error'); return; }
 
             setLoadingState(true);
-
-            // Prepare only the fields that can be edited
-            const updatedData = {
-                ID: id,
-                Amount: amount,
-                Category: category,
-                Date: date,
-                Note: note
-            };
+            const updatedData = { ID: id, Amount: amount, Category: category, Date: date, Note: note };
 
             try {
                 const response = await fetch(AppConfig.apiUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
+                    method: 'POST', mode: 'cors', cache: 'no-cache',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'editTransaction',
-                        secret: AppConfig.apiSecret,
-                        data: updatedData
-                    })
+                    body: JSON.stringify({ action: 'editTransaction', secret: AppConfig.apiSecret, data: updatedData })
                 });
-
                  if (!response.ok) {
                      let errorMsg = `HTTP error! ${response.status}`;
                      try { const errRes = await response.json(); errorMsg = errRes.message || errorMsg; } catch (e) {}
                      throw new Error(errorMsg);
                  }
-
                 const result = await response.json();
                  console.log("Edit Transaction API response:", result);
-
                 if (result.status === 'success' && result.data && String(result.data.ID) === id) {
-                    // Find index and update local array
                     const index = transactions.findIndex(t => String(t.ID) === id);
                     if (index !== -1) {
-                         // Merge updated data - backend confirms final state
-                         // Ensure numeric fields are numbers
                          result.data.Amount = parseFloat(result.data.Amount) || 0;
-                         result.data.Timestamp = parseInt(result.data.Timestamp) || transactions[index].Timestamp; // Keep original timestamp
-
-                        transactions[index] = { ...transactions[index], ...result.data }; // Update local data
-                        transactions.sort((a, b) => b.Timestamp - a.Timestamp); // Re-sort if date changed timestamp logic
+                         result.data.Timestamp = parseInt(result.data.Timestamp) || transactions[index].Timestamp;
+                        transactions[index] = { ...transactions[index], ...result.data };
+                        transactions.sort((a, b) => b.Timestamp - a.Timestamp);
                          console.log("Transaction updated locally:", transactions[index]);
                     } else {
-                       console.warn("Edited transaction ID not found in local array after successful API call:", id);
-                       // Optionally force a reload if local state is inconsistent
-                       // await loadTransactions(); return;
+                       console.warn("Edited transaction ID not found locally:", id);
+                       // await loadTransactions(); return; // Option: Force reload
                     }
                     showNotification('Transaction updated successfully!', 'success');
-                    closeModal(); // Close the edit modal
+                    closeModal();
                 } else {
-                    throw new Error(result.message || 'Failed to update transaction. Invalid response from server.');
+                    throw new Error(result.message || 'Failed to update transaction.');
                 }
             } catch (error) {
                 console.error("Error updating transaction:", error);
                 showNotification(`Error updating transaction: ${error.message}`, 'error', 5000);
             } finally {
                 setLoadingState(false);
-                applyFiltersAndRender(); // Update list and summary
+                applyFiltersAndRender();
             }
         }
 
         /** Confirms and deletes transaction via API */
         async function confirmDelete() {
              if (isLoading) return;
-            const id = elements.deleteId.value; // ID is string from hidden input
-            if (!id) { console.error("Delete cancelled: No ID found in modal."); return; }
+            const id = elements.deleteId.value;
+            if (!id) { console.error("Delete cancelled: No ID found."); return; }
 
             setLoadingState(true);
             try {
                 const response = await fetch(AppConfig.apiUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
+                    method: 'POST', mode: 'cors', cache: 'no-cache',
                      headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'deleteTransaction',
-                        secret: AppConfig.apiSecret,
-                        data: { ID: id } // Send ID within data object
-                    })
+                    body: JSON.stringify({ action: 'deleteTransaction', secret: AppConfig.apiSecret, data: { ID: id } })
                 });
-
                  if (!response.ok) {
                      let errorMsg = `HTTP error! ${response.status}`;
                      try { const errRes = await response.json(); errorMsg = errRes.message || errorMsg; } catch (e) {}
                      throw new Error(errorMsg);
                  }
-
                 const result = await response.json();
                  console.log("Delete Transaction API response:", result);
-
                 if (result.status === 'success' && result.data && String(result.data.ID) === id) {
-                    // Remove from local array
                     transactions = transactions.filter(t => String(t.ID) !== id);
-                    selectedTransactionIds.delete(id); // Remove from selection if present
-
+                    selectedTransactionIds.delete(id);
                     showNotification('Transaction deleted.', 'info');
-                    closeModal(); // Close the delete confirmation modal
+                    closeModal();
                 } else {
-                    throw new Error(result.message || 'Failed to delete transaction. Invalid response from server.');
+                    throw new Error(result.message || 'Failed to delete transaction.');
                 }
             } catch (error) {
                 console.error("Error deleting transaction:", error);
                 showNotification(`Error deleting transaction: ${error.message}`, 'error', 5000);
             } finally {
                 setLoadingState(false);
-                applyFiltersAndRender(); // Update list and summary
+                applyFiltersAndRender();
             }
         }
 
-        /** Handles confirmation of bulk delete - NEEDS BACKEND IMPLEMENTATION */
+        /** Handles confirmation of bulk delete */
         async function handleBulkDeleteConfirm() {
             if (isLoading) return;
             const idsToDelete = Array.from(selectedTransactionIds);
              if (idsToDelete.length === 0) {
-                showNotification('No transactions selected for deletion.', 'warning');
-                closeModal();
-                return;
+                showNotification('No transactions selected for deletion.', 'warning'); closeModal(); return;
             }
-
-             // *** FRONTEND OPTIMISTIC UPDATE (Remove immediately) ***
-             // Comment this out if you prefer to wait for server confirmation
-             const originalTransactions = [...transactions]; // Backup for potential rollback
+             const originalTransactions = [...transactions]; // Backup
              transactions = transactions.filter(t => !selectedTransactionIds.has(String(t.ID)));
              const locallyRemovedCount = selectedTransactionIds.size;
              selectedTransactionIds.clear();
-             applyFiltersAndRender(); // Update UI immediately
-             closeModal(); // Close bulk delete modal
+             applyFiltersAndRender(); // Optimistic UI update
+             closeModal();
              showNotification(`Attempting to delete ${locallyRemovedCount} items...`, 'info', 2000);
-             // *** END OPTIMISTIC UPDATE ***
-
-             setLoadingState(true); // Show loading state during API call
+             setLoadingState(true);
 
             try {
-                 // --- THIS REQUIRES 'bulkDeleteTransactions' action in Code.gs ---
                  console.warn("Attempting bulk delete - ensure 'bulkDeleteTransactions' action is implemented in Code.gs");
                 const response = await fetch(AppConfig.apiUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
+                    method: 'POST', mode: 'cors', cache: 'no-cache',
                      headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'bulkDeleteTransactions', // <<-- NEW ACTION NEEDED ON BACKEND
-                        secret: AppConfig.apiSecret,
-                        data: { IDs: idsToDelete } // Send array of IDs
-                    })
+                    body: JSON.stringify({ action: 'bulkDeleteTransactions', secret: AppConfig.apiSecret, data: { IDs: idsToDelete } })
                 });
-
                  if (!response.ok) {
                      let errorMsg = `HTTP error! ${response.status}`;
                      try { const errRes = await response.json(); errorMsg = errRes.message || errorMsg; } catch (e) {}
-                     throw new Error(errorMsg); // Trigger catch block
+                     throw new Error(errorMsg);
                  }
-
                 const result = await response.json();
                  console.log("Bulk Delete API response:", result);
-
-                if (result.status === 'success' || result.status === 'warning') { // Accept success or warning (if partially done)
-                    // Backend confirms which IDs were deleted (result.data.deletedIDs)
-                    // If we did optimistic update, we might just show final confirmation/warning
+                if (result.status === 'success' || result.status === 'warning') {
                     const deletedCount = result.data?.deletedIDs?.length || 0;
-                     if (result.status === 'warning') {
-                         showNotification(`Bulk delete partially completed: ${result.message || 'Some items may remain.'}`, 'warning', 5000);
-                     } else {
-                        showNotification(`Successfully deleted ${deletedCount} transactions.`, 'success');
-                     }
-                      // If optimistic update failed or backend deleted fewer, might need to reload
+                     if (result.status === 'warning') { showNotification(`Bulk delete partially completed: ${result.message || ''}`, 'warning', 5000); }
+                     else { showNotification(`Successfully deleted ${deletedCount} transactions.`, 'success'); }
                      if (locallyRemovedCount !== deletedCount && deletedCount < locallyRemovedCount) {
-                        console.warn("Mismatch between optimistic delete and server response. Reloading data.");
-                        transactions = originalTransactions; // Rollback optimistic removal
-                        await loadTransactions(); // Force reload from server state
+                        console.warn("Mismatch between optimistic delete and server. Reloading.");
+                        transactions = originalTransactions; await loadTransactions(); // Reload on mismatch
                      }
-                } else {
-                     throw new Error(result.message || 'Failed to bulk delete transactions.'); // Trigger catch block
-                }
+                } else { throw new Error(result.message || 'Failed to bulk delete transactions.'); }
             } catch (error) {
                 console.error("Error during bulk delete:", error);
                 showNotification(`Error during bulk delete: ${error.message}`, 'error', 5000);
-                 // Rollback optimistic update on error
-                 transactions = originalTransactions;
-                 selectedTransactionIds = new Set(idsToDelete); // Restore selection set on error
-                 applyFiltersAndRender(); // Re-render with original data
-            } finally {
-                setLoadingState(false);
-                 // No need to call applyFiltersAndRender here if optimistic update was done,
-                 // unless rolling back or reloading.
-            }
+                 transactions = originalTransactions; // Rollback optimistic update
+                 selectedTransactionIds = new Set(idsToDelete);
+                 applyFiltersAndRender(); // Re-render original state
+            } finally { setLoadingState(false); }
         }
 
 
         // --- SECTION: UI Rendering & Updates ---
         function renderTransactions(dataToRender) {
-             // Show loading indicator if loading AND list is empty
              if (isLoading && dataToRender.length === 0) {
-                elements.transactionList.innerHTML = ''; // Clear previous content
-                elements.transactionList.appendChild(elements.loadingIndicator);
-                elements.loadingIndicator.style.display = 'block'; // Ensure visible
-                return;
-            } else {
-                elements.loadingIndicator.style.display = 'none'; // Hide loading indicator
-            }
+                elements.transactionList.innerHTML = ''; elements.transactionList.appendChild(elements.loadingIndicator);
+                elements.loadingIndicator.style.display = 'block'; return;
+            } else { elements.loadingIndicator.style.display = 'none'; }
 
-             // --- Animation Logic (FLIP) ---
-             const list = elements.transactionList;
-             const idsToRender = new Set(dataToRender.map(t => String(t.ID)));
+             const list = elements.transactionList; const idsToRender = new Set(dataToRender.map(t => String(t.ID)));
              const { animationDuration: duration, staggerDelayIncrement: increment } = AppConfig;
-
-             // 1. Record initial positions and scroll
-             const firstPositions = new Map();
-             const firstScroll = list.scrollTop;
+             const firstPositions = new Map(); const firstScroll = list.scrollTop;
              const existingElements = list.querySelectorAll('li[data-id]:not(.transaction-list-item--removing)');
-             const existingIds = new Set();
-             const existingMap = new Map();
-
-             existingElements.forEach(el => {
-                const id = el.dataset.id;
-                existingIds.add(id);
-                firstPositions.set(id, el.getBoundingClientRect());
-                existingMap.set(id, el);
-            });
-
-             // 2. Separate elements into entering, moving, leaving
-             const fragment = document.createDocumentFragment();
-             const entering = []; // New elements
-             const moving = [];   // Existing elements that remain
-             const leaving = [];  // Existing elements to be removed
-
-             existingElements.forEach(el => {
-                if (!idsToRender.has(el.dataset.id)) {
-                    leaving.push(el);
-                }
-            });
-
+             const existingIds = new Set(); const existingMap = new Map();
+             existingElements.forEach(el => { const id = el.dataset.id; existingIds.add(id); firstPositions.set(id, el.getBoundingClientRect()); existingMap.set(id, el); });
+             const fragment = document.createDocumentFragment(); const entering = []; const moving = []; const leaving = [];
+             existingElements.forEach(el => { if (!idsToRender.has(el.dataset.id)) { leaving.push(el); } });
              dataToRender.forEach(t => {
                 const id = String(t.ID);
                 if (existingIds.has(id)) {
-                    // Element exists, update its selection state and add to moving
                     const el = existingMap.get(id);
-                    if (el) {
-                        updateListItemSelection(el, selectedTransactionIds.has(id)); // Update selected class
-                        moving.push(el);
-                        fragment.appendChild(el); // Add to fragment for re-ordering
-                        el.classList.remove('transaction-list-item--removing'); // Ensure not marked for removal
-                    }
-                } else {
-                    // Element is new, create it and add to entering
-                    const li = createTransactionListItem(t);
-                    li.style.opacity = '0'; // Start invisible for fade-in
-                    entering.push(li);
-                    fragment.appendChild(li); // Add to fragment
-                }
+                    if (el) { updateListItemSelection(el, selectedTransactionIds.has(id)); moving.push(el); fragment.appendChild(el); el.classList.remove('transaction-list-item--removing'); }
+                } else { const li = createTransactionListItem(t); li.style.opacity = '0'; entering.push(li); fragment.appendChild(li); }
             });
-
-            // 3. Position leaving elements absolutely based on their initial position
-            positionLeavingElements(leaving, firstPositions, list, firstScroll);
-
-            // 4. Append the fragment (contains moving and entering elements in correct order)
-            list.innerHTML = ''; // Clear the list BUT keep leaving elements if positioned absolutely
-            list.appendChild(fragment);
-
-            // Ensure leaving elements stay in the DOM for animation if they were positioned absolutely
-            leaving.forEach(el => {
-                if (el.style.position === 'absolute' && !list.contains(el)) {
-                     list.appendChild(el); // Re-add if removed by innerHTML clear
-                }
-            });
-
-
-             // 5. Record final positions and scroll
-             const lastScroll = list.scrollTop;
-             const lastPositions = recordLastPositions(list, leaving);
-
-             // 6. Invert positions for moving elements (translate them back to their 'first' position)
+             positionLeavingElements(leaving, firstPositions, list, firstScroll); list.innerHTML = ''; list.appendChild(fragment);
+             leaving.forEach(el => { if (el.style.position === 'absolute' && !list.contains(el)) { list.appendChild(el); } });
+             const lastScroll = list.scrollTop; const lastPositions = recordLastPositions(list, leaving);
              invertMovingElements(moving, firstPositions, lastPositions, firstScroll, lastScroll);
-
-             // 7. Play animations (move+fade moving elements to final pos, fade-in entering, fade-out leaving)
              playAnimations(moving, entering, leaving, list, duration, increment);
-
-             // Update global state and UI elements
-            currentlyDisplayedTransactions = dataToRender;
-            updateBulkActionUI(); // Update 'Select All' checkbox and Bulk Delete button
-            // Moved handleEmptyListState inside playAnimations to run after animations complete
+             currentlyDisplayedTransactions = dataToRender; updateBulkActionUI();
         }
 
         function createTransactionListItem(t) {
-            const li = document.createElement('li');
-            const id = String(t.ID);
-            const isSelected = selectedTransactionIds.has(id);
-            const type = t.Type === 'income' || t.Type === 'expense' ? t.Type : 'unknown';
-            const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
-
-            li.className = `${type}${isSelected ? ' selected' : ''}`;
-            li.dataset.id = id;
-
-            // Date and Time Formatting - FIXED 'adolescence' typo
-            const dateFormatted = dayjs(t.Date).isValid() ? dayjs(t.Date).format('MMM D, YYYY') : 'Invalid Date'; // Use YYYY
+            const li = document.createElement('li'); const id = String(t.ID); const isSelected = selectedTransactionIds.has(id);
+            const type = t.Type === 'income' || t.Type === 'expense' ? t.Type : 'unknown'; const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+            li.className = `${type}${isSelected ? ' selected' : ''}`; li.dataset.id = id;
+            const dateFormatted = dayjs(t.Date).isValid() ? dayjs(t.Date).format('MMM D, YYYY') : 'Invalid Date';
             const timeFormatted = dayjs(t.Timestamp).isValid() ? dayjs(t.Timestamp).format('h:mm a') : '';
-
-            const typeBadge = `<span class="type-badge ${type}">${typeLabel}</span>`;
-            const userDisplay = `<div class="transaction-user">By: ${escapeHTML(t.User || '?')}</div>`;
+            const typeBadge = `<span class="type-badge ${type}">${typeLabel}</span>`; const userDisplay = `<div class="transaction-user">By: ${escapeHTML(t.User || '?')}</div>`;
             const noteDisplay = t.Note ? `<div class="transaction-note">${escapeHTML(t.Note)}</div>` : '';
-
-            li.innerHTML = `
-                <div class="transaction-checkbox-container">
-                    <input type="checkbox" class="transaction-checkbox" data-id="${id}" ${isSelected ? 'checked' : ''} aria-label="Select transaction">
-                </div>
-                <div class="transaction-info">
-                    <div class="transaction-header">
-                        ${typeBadge}
-                        <span class="transaction-category">${escapeHTML(t.Category || 'N/A')}</span>
-                    </div>
-                    <div class="transaction-details">
-                        ${dateFormatted}
-                        <span class="transaction-time">(${timeFormatted})</span>
-                    </div>
-                    ${userDisplay}
-                    ${noteDisplay}
-                </div>
-                <div class="transaction-right-col">
-                    <div class="transaction-amount">${type === 'income' ? '+' : '-'}${formatCurrency(t.Amount)}</div>
-                    <div class="transaction-actions">
-                        <button class="action-btn edit-btn" title="Edit">✏️</button>
-                        <button class="action-btn delete-btn" title="Delete">🗑️</button>
-                    </div>
-                </div>`;
+            li.innerHTML = `<div class="transaction-checkbox-container"><input type="checkbox" class="transaction-checkbox" data-id="${id}" ${isSelected ? 'checked' : ''} aria-label="Select transaction"></div><div class="transaction-info"><div class="transaction-header">${typeBadge} <span class="transaction-category">${escapeHTML(t.Category || 'N/A')}</span></div><div class="transaction-details">${dateFormatted} <span class="transaction-time">(${timeFormatted})</span></div>${userDisplay}${noteDisplay}</div><div class="transaction-right-col"><div class="transaction-amount">${type === 'income' ? '+' : '-'}${formatCurrency(t.Amount)}</div><div class="transaction-actions"><button class="action-btn edit-btn" title="Edit">✏️</button><button class="action-btn delete-btn" title="Delete">🗑️</button></div></div>`;
             return li;
         }
 
         function updateListItemSelection(listItemElement, isSelected) {
-            if (!listItemElement || !listItemElement.dataset) return;
-            const id = listItemElement.dataset.id;
-            if (isSelected) {
-                listItemElement.classList.add('selected');
-                selectedTransactionIds.add(id);
-            } else {
-                listItemElement.classList.remove('selected');
-                selectedTransactionIds.delete(id);
-            }
-            // Sync checkbox state
-            const checkbox = listItemElement.querySelector('.transaction-checkbox');
-            if (checkbox) checkbox.checked = isSelected;
+            if (!listItemElement || !listItemElement.dataset) return; const id = listItemElement.dataset.id;
+            if (isSelected) { listItemElement.classList.add('selected'); selectedTransactionIds.add(id); }
+            else { listItemElement.classList.remove('selected'); selectedTransactionIds.delete(id); }
+            const checkbox = listItemElement.querySelector('.transaction-checkbox'); if (checkbox) checkbox.checked = isSelected;
         }
 
         // --- Animation Helper Functions ---
-        function positionLeavingElements(leavingElements, firstPositionsMap, listElement, firstScrollPosition) {
-            leavingElements.forEach(el => {
-                const firstRect = firstPositionsMap.get(el.dataset.id);
-                if (firstRect) {
-                    el.style.position = 'absolute';
-                    const listRect = listElement.getBoundingClientRect();
-                     // Calculate absolute position relative to the list container
-                    el.style.top = `${firstRect.top - listRect.top + firstScrollPosition}px`;
-                    el.style.left = `${firstRect.left - listRect.left}px`;
-                    el.style.width = `${firstRect.width}px`; // Preserve width
-                    el.style.zIndex = '-1'; // Move behind other elements
-                 } else {
-                    // If no starting position, just hide it? Or handle differently.
-                    el.style.display = 'none';
-                 }
-            });
-        }
-
-        function recordLastPositions(listElement, leavingElements) {
-            const lastPositionsMap = new Map();
-            const leavingIdsSet = new Set(leavingElements.map(el => el.dataset.id));
-            const allCurrentItems = listElement.querySelectorAll('li[data-id]');
-
-            allCurrentItems.forEach(el => {
-                // Record position only for items that are NOT leaving
-                if (!leavingIdsSet.has(el.dataset.id)) {
-                    lastPositionsMap.set(el.dataset.id, el.getBoundingClientRect());
-                }
-            });
-            return lastPositionsMap;
-        }
-
-        function invertMovingElements(movingElements, firstPositionsMap, lastPositionsMap, firstScrollPosition, lastScrollPosition) {
-            movingElements.forEach(el => {
-                const id = el.dataset.id;
-                const firstRect = firstPositionsMap.get(id);
-                const lastRect = lastPositionsMap.get(id);
-
-                if (firstRect && lastRect) {
-                    // Calculate the difference including scroll offset
-                    const deltaX = Math.round(firstRect.left - lastRect.left);
-                    const deltaY = Math.round((firstRect.top + firstScrollPosition) - (lastRect.top + lastScrollPosition));
-
-                    // Apply inverse transform only if movement is significant
-                    if (Math.abs(deltaX) > 0.5 || Math.abs(deltaY) > 0.5) {
-                        el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-                         el.style.transition = 'none'; // Prevent transition during inversion
-                    } else {
-                        el.style.transform = ''; // No transform needed
-                    }
-                     el.style.opacity = '1'; // Ensure visible if it was entering/fading
-                }
-            });
-        }
-
-        function playAnimations(movingElements, enteringElements, leavingElements, listElement, durationMs, staggerIncrementMs) {
-            // Use requestAnimationFrame to ensure inversion transforms are applied before starting animation
-            requestAnimationFrame(() => {
-                const baseTransition = `transform ${durationMs}ms ease-in-out, opacity ${durationMs}ms ease-in-out`;
-
-                 // Animate moving elements back to their natural position (transform -> none)
-                movingElements.forEach((el) => {
-                    el.style.transition = baseTransition;
-                    el.style.transform = ''; // Animate back to natural position
-                    el.style.opacity = '1';
-                    // Clean up transition style after animation
-                    el.addEventListener('transitionend', () => { el.style.transition = ''; }, { once: true });
-                });
-
-                // Animate entering elements (fade in, optional slide-in)
-                enteringElements.forEach((el, index) => {
-                     const delay = index * staggerIncrementMs;
-                     // el.style.transform = 'translateY(20px)'; // Optional slide-in effect
-                     el.style.transition = `transform ${durationMs}ms ease-in-out ${delay}ms, opacity ${durationMs}ms ease-in-out ${delay}ms`;
-                    requestAnimationFrame(() => { // Ensure initial styles are applied before transition starts
-                         // el.style.transform = ''; // Animate to natural position if slide-in used
-                        el.style.opacity = '1'; // Fade in
-                    });
-                     // Clean up transition style after animation
-                    el.addEventListener('transitionend', () => { el.style.transition = ''; }, { once: true });
-                });
-
-                // Animate leaving elements (fade out, optional slide-out)
-                leavingElements.forEach((el, index) => {
-                     const delay = index * staggerIncrementMs;
-                     el.style.transition = `transform ${durationMs}ms ease-in-out ${delay}ms, opacity ${durationMs}ms ease-in-out ${delay}ms`;
-                    requestAnimationFrame(() => {
-                        el.classList.add('transaction-list-item--removing'); // Apply removing class for opacity rule
-                         // el.style.transform = 'translateX(-100%)'; // Optional slide-out effect
-                         el.style.opacity = '0'; // Fade out via class or direct style
-                    });
-                    // Remove element from DOM after animation completes
-                    const totalDuration = durationMs + delay;
-                    setTimeout(() => {
-                        if (el.parentNode === listElement) {
-                            listElement.removeChild(el);
-                        }
-                        // Check empty state after the last leaving element is removed
-                         if (index === leavingElements.length - 1) {
-                           handleEmptyListState(listElement);
-                         }
-                    }, totalDuration + 50); // Add buffer
-                });
-
-                 // Handle empty state immediately if nothing is leaving but list might be empty now
-                 if (leavingElements.length === 0) {
-                    handleEmptyListState(listElement);
-                 }
-            });
-        }
-
-
-        function handleEmptyListState(listElement) {
-            const hasContent = listElement.querySelector('li[data-id]:not(.transaction-list-item--removing)');
-             const noTransactionsMessage = listElement.querySelector('.no-transactions');
-
-            if (!hasContent && !noTransactionsMessage) {
-                 // List is empty and no message exists, add the message
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'no-transactions';
-                msgDiv.textContent = 'No transactions match the current filters.';
-                listElement.appendChild(msgDiv);
-                 console.log("Showing 'no transactions' message.");
-            } else if (hasContent && noTransactionsMessage) {
-                // List has content but the message is still there, remove the message
-                listElement.removeChild(noTransactionsMessage);
-                 console.log("Removing 'no transactions' message.");
-            }
-        }
+        function positionLeavingElements(leavingElements, firstPositionsMap, listElement, firstScrollPosition) { leavingElements.forEach(el => { const firstRect = firstPositionsMap.get(el.dataset.id); if (firstRect) { el.style.position = 'absolute'; const listRect = listElement.getBoundingClientRect(); el.style.top = `${firstRect.top - listRect.top + firstScrollPosition}px`; el.style.left = `${firstRect.left - listRect.left}px`; el.style.width = `${firstRect.width}px`; el.style.zIndex = '-1'; } else { el.style.display = 'none'; } }); }
+        function recordLastPositions(listElement, leavingElements) { const lastPositionsMap = new Map(); const leavingIdsSet = new Set(leavingElements.map(el => el.dataset.id)); const allCurrentItems = listElement.querySelectorAll('li[data-id]'); allCurrentItems.forEach(el => { if (!leavingIdsSet.has(el.dataset.id)) { lastPositionsMap.set(el.dataset.id, el.getBoundingClientRect()); } }); return lastPositionsMap; }
+        function invertMovingElements(movingElements, firstPositionsMap, lastPositionsMap, firstScrollPosition, lastScrollPosition) { movingElements.forEach(el => { const id = el.dataset.id; const firstRect = firstPositionsMap.get(id); const lastRect = lastPositionsMap.get(id); if (firstRect && lastRect) { const deltaX = Math.round(firstRect.left - lastRect.left); const deltaY = Math.round((firstRect.top + firstScrollPosition) - (lastRect.top + lastScrollPosition)); if (Math.abs(deltaX) > 0.5 || Math.abs(deltaY) > 0.5) { el.style.transform = `translate(${deltaX}px, ${deltaY}px)`; el.style.transition = 'none'; } else { el.style.transform = ''; } el.style.opacity = '1'; } }); }
+        function playAnimations(movingElements, enteringElements, leavingElements, listElement, durationMs, staggerIncrementMs) { requestAnimationFrame(() => { const baseTransition = `transform ${durationMs}ms ease-in-out, opacity ${durationMs}ms ease-in-out`; movingElements.forEach((el) => { el.style.transition = baseTransition; el.style.transform = ''; el.style.opacity = '1'; el.addEventListener('transitionend', () => { el.style.transition = ''; }, { once: true }); }); enteringElements.forEach((el, index) => { const delay = index * staggerIncrementMs; el.style.transition = `transform ${durationMs}ms ease-in-out ${delay}ms, opacity ${durationMs}ms ease-in-out ${delay}ms`; requestAnimationFrame(() => { el.style.opacity = '1'; }); el.addEventListener('transitionend', () => { el.style.transition = ''; }, { once: true }); }); leavingElements.forEach((el, index) => { const delay = index * staggerIncrementMs; el.style.transition = `transform ${durationMs}ms ease-in-out ${delay}ms, opacity ${durationMs}ms ease-in-out ${delay}ms`; requestAnimationFrame(() => { el.classList.add('transaction-list-item--removing'); el.style.opacity = '0'; }); const totalDuration = durationMs + delay; setTimeout(() => { if (el.parentNode === listElement) { listElement.removeChild(el); } if (index === leavingElements.length - 1) { handleEmptyListState(listElement); } }, totalDuration + 50); }); if (leavingElements.length === 0) { handleEmptyListState(listElement); } }); }
+        function handleEmptyListState(listElement) { const hasContent = listElement.querySelector('li[data-id]:not(.transaction-list-item--removing)'); const noTransactionsMessage = listElement.querySelector('.no-transactions'); if (!hasContent && !noTransactionsMessage) { const msgDiv = document.createElement('div'); msgDiv.className = 'no-transactions'; msgDiv.textContent = 'No transactions match the current filters.'; listElement.appendChild(msgDiv); console.log("Showing 'no transactions' message."); } else if (hasContent && noTransactionsMessage) { listElement.removeChild(noTransactionsMessage); console.log("Removing 'no transactions' message."); } }
         // --- End Animation Helpers ---
 
-        function updateSummary(dataToSummarize) {
-            const income = dataToSummarize.filter(t => t.Type === 'income').reduce((sum, t) => sum + t.Amount, 0);
-            const expenses = dataToSummarize.filter(t => t.Type === 'expense').reduce((sum, t) => sum + t.Amount, 0);
-            const balance = income - expenses;
+        function updateSummary(dataToSummarize) { const income = dataToSummarize.filter(t => t.Type === 'income').reduce((sum, t) => sum + t.Amount, 0); const expenses = dataToSummarize.filter(t => t.Type === 'expense').reduce((sum, t) => sum + t.Amount, 0); const balance = income - expenses; elements.incomeTotalDisplay.textContent = formatCurrency(income); elements.expensesTotalDisplay.textContent = formatCurrency(expenses); elements.balanceDisplay.textContent = formatCurrency(balance); elements.balanceDisplay.style.color = balance < 0 ? 'var(--color-danger)' : 'var(--color-primary)'; }
+        function updateFilterDisplay() { let filterText = 'All'; const type = elements.typeFilter.value; const dateVal = elements.dateFilter.value; const search = elements.searchInput.value.trim(); const user = elements.userFilter.value; let filtersApplied = false; let parts = []; if (activeTimeFilter) { filtersApplied = true; if (activeTimeFilter === 'weekly') { parts.push(`Week ${elements.weekSelect.value}, ${elements.weekMonthSelect.options[elements.weekMonthSelect.selectedIndex].text} ${elements.weekYearSelect.value}`); } else if (activeTimeFilter === 'monthly') { parts.push(`${elements.monthSelect.options[elements.monthSelect.selectedIndex].text} ${elements.monthYearSelect.value}`); } else if (activeTimeFilter === 'yearly') { parts.push(`Year ${elements.yearSelect.value}`); } } else if (dateVal && isValidDate(dateVal)) { filtersApplied = true; parts.push(dayjs(dateVal).format('MMM D, YYYY')); } if (type !== 'all') { filtersApplied = true; parts.push(type.charAt(0).toUpperCase() + type.slice(1)); } if (user !== 'all') { filtersApplied = true; parts.push(`User: ${user}`); } if (search) { filtersApplied = true; parts.push(`Search: "${search}"`); } if (filtersApplied) { filterText = parts.join('; '); } elements.filterDisplay.textContent = `(${filterText})`; elements.balanceLabel.textContent = (type === 'income' || type === 'expense') ? 'Total' : 'Balance'; }
+        function switchTab(tabName) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active')); document.querySelector(`.tab[data-tab='${tabName}']`)?.classList.add('active'); document.getElementById(`${tabName}-form`)?.classList.add('active'); updateTabColors(); console.log(`Switched to tab: ${tabName}`); }
+        function updateTabColors() { /* Handled by CSS */ }
+        function showNotification(message, type = 'info', duration = AppConfig.notificationDuration) { if (!elements.notificationArea) return; const notification = document.createElement('div'); notification.className = `notification notification-${type}`; notification.textContent = message; elements.notificationArea.appendChild(notification); setTimeout(() => { notification.classList.add('fade-out'); notification.addEventListener('animationend', () => { if (notification.parentNode === elements.notificationArea) { elements.notificationArea.removeChild(notification); } }, { once: true }); }, duration); }
+        function applyTheme(themeName) { if (themeName === 'dark') { document.body.classList.add('dark-mode'); if (elements.themeCheckbox) elements.themeCheckbox.checked = true; } else { document.body.classList.remove('dark-mode'); if (elements.themeCheckbox) elements.themeCheckbox.checked = false; } localStorage.setItem('theme', themeName); console.log(`Theme applied: ${themeName}`); }
 
-            elements.incomeTotalDisplay.textContent = formatCurrency(income);
-            elements.expensesTotalDisplay.textContent = formatCurrency(expenses);
-            elements.balanceDisplay.textContent = formatCurrency(balance);
-            elements.balanceDisplay.style.color = balance < 0 ? 'var(--color-danger)' : 'var(--color-primary)'; // Dynamic color for balance
-        }
-
-        function updateFilterDisplay() {
-            let filterText = 'All';
-            const type = elements.typeFilter.value;
-            const dateVal = elements.dateFilter.value;
-            const search = elements.searchInput.value.trim();
-            const user = elements.userFilter.value;
-            let filtersApplied = false;
-            let parts = [];
-
-            if (activeTimeFilter) {
-                filtersApplied = true;
-                if (activeTimeFilter === 'weekly') {
-                    parts.push(`Week ${elements.weekSelect.value}, ${elements.weekMonthSelect.options[elements.weekMonthSelect.selectedIndex].text} ${elements.weekYearSelect.value}`);
-                } else if (activeTimeFilter === 'monthly') {
-                    parts.push(`${elements.monthSelect.options[elements.monthSelect.selectedIndex].text} ${elements.monthYearSelect.value}`);
-                } else if (activeTimeFilter === 'yearly') {
-                    parts.push(`Year ${elements.yearSelect.value}`);
-                }
-            } else if (dateVal && isValidDate(dateVal)) {
-                filtersApplied = true;
-                parts.push(dayjs(dateVal).format('MMM D, YYYY'));
-            }
-
-            if (type !== 'all') {
-                filtersApplied = true;
-                parts.push(type.charAt(0).toUpperCase() + type.slice(1));
-            }
-            if (user !== 'all') {
-                filtersApplied = true;
-                parts.push(`User: ${user}`);
-            }
-            if (search) {
-                filtersApplied = true;
-                parts.push(`Search: "${search}"`);
-            }
-
-            if (filtersApplied) {
-                filterText = parts.join('; ');
-            }
-
-            elements.filterDisplay.textContent = `(${filterText})`;
-            // Adjust Balance label based on Type filter
-            elements.balanceLabel.textContent = (type === 'income' || type === 'expense') ? 'Total' : 'Balance';
-        }
-
-        function switchTab(tabName) {
-            // Deactivate all tabs and forms
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-
-            // Activate the selected tab and form
-            document.querySelector(`.tab[data-tab='${tabName}']`)?.classList.add('active');
-            document.getElementById(`${tabName}-form`)?.classList.add('active');
-            updateTabColors(); // Ensure correct visual style
-             console.log(`Switched to tab: ${tabName}`);
-        }
-
-        function updateTabColors() { /* Handled by CSS based on .active class */ }
-
-        function showNotification(message, type = 'info', duration = AppConfig.notificationDuration) {
-            if (!elements.notificationArea) return;
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.textContent = message;
-            elements.notificationArea.appendChild(notification);
-
-            // Trigger fade-in animation
-             // Opacity/transform set by CSS animation 'notification-fade'
-
-            // Set timer to fade out and remove
-            setTimeout(() => {
-                notification.classList.add('fade-out');
-                // Remove element after fade-out animation completes
-                notification.addEventListener('animationend', () => {
-                    if (notification.parentNode === elements.notificationArea) {
-                        elements.notificationArea.removeChild(notification);
-                    }
-                }, { once: true });
-            }, duration);
-        }
-
-        function applyTheme(themeName) {
-            if (themeName === 'dark') {
-                document.body.classList.add('dark-mode');
-                if (elements.themeCheckbox) elements.themeCheckbox.checked = true;
-            } else {
-                document.body.classList.remove('dark-mode');
-                if (elements.themeCheckbox) elements.themeCheckbox.checked = false;
-            }
-            localStorage.setItem('theme', themeName); // Save preference
-             console.log(`Theme applied: ${themeName}`);
-        }
-
-        // ---> UPDATED FUNCTION: Auto-select User and Disable Dropdown <---
+        // ---> UPDATED FUNCTION: Auto-select User BUT KEEP Dropdown Enabled <---
         function autoSelectUserForms() {
-            const userSelects = { // Helper object to manage both selects
-                expense: elements.expenseUser,
-                income: elements.incomeUser
-            };
-
-             if (loggedInUserRole && AppConfig.users.includes(loggedInUserRole)) {
-                console.log(`Attempting to auto-select and disable user: ${loggedInUserRole}`);
-                 let userSet = false;
+            const userSelects = { expense: elements.expenseUser, income: elements.incomeUser };
+            if (loggedInUserRole && AppConfig.users.includes(loggedInUserRole)) {
+                console.log(`Attempting to auto-select user: ${loggedInUserRole}`);
+                let userSet = false;
                 for (const type in userSelects) {
                     const selectElement = userSelects[type];
                     if (selectElement) {
                         selectElement.value = loggedInUserRole; // Set the correct user
-                        selectElement.disabled = true;         // <-- Disable the dropdown
+                        selectElement.disabled = false;        // <-- ENSURE dropdown is ENABLED
                         userSet = true;
                     }
                 }
-                // Show notification only if user was successfully set
-                 if(userSet) showNotification(`User automatically set to ${loggedInUserRole}.`, 'info', 2000);
-
+                if(userSet) showNotification(`User automatically set to ${loggedInUserRole}.`, 'info', 2000);
             } else {
-                console.warn("Could not auto-select user. Role not received, not recognized, or user not logged in:", loggedInUserRole);
-                // If the role isn't found, make sure the dropdowns are enabled
-                for (const type in userSelects) {
+                console.warn("Could not auto-select user. Role not received/recognized:", loggedInUserRole);
+                for (const type in userSelects) { // Ensure dropdowns are enabled if role not found
                     const selectElement = userSelects[type];
-                    if (selectElement) {
-                        selectElement.disabled = false;       // <-- Ensure dropdown is enabled
-                    }
+                    if (selectElement) { selectElement.disabled = false; }
                 }
-                 // Optionally notify if user couldn't be identified
-                 // showNotification('Could not identify user role automatically.', 'warning');
             }
         }
-
 
         // --- SECTION: Filtering Logic ---
-        function applyFiltersAndRender() {
-             // Deselect all items when filters change
-             selectedTransactionIds.clear();
-
-            const typeFilterValue = elements.typeFilter.value;
-            const dateFilterValue = elements.dateFilter.value;
-            const searchFilterValue = elements.searchInput.value.toLowerCase().trim();
-            const userFilterValue = elements.userFilter.value;
-
-            let filteredTransactions = [...transactions]; // Start with all transactions
-
-            // Apply Type Filter
-            if (typeFilterValue !== 'all') {
-                filteredTransactions = filteredTransactions.filter(t => t.Type === typeFilterValue);
-            }
-
-            // Apply User Filter
-             if (userFilterValue !== 'all') {
-                filteredTransactions = filteredTransactions.filter(t => t.User === userFilterValue);
-            }
-
-            // Apply Search Filter (Category, Note, Amount, Date, User)
-            if (searchFilterValue) {
-                filteredTransactions = filteredTransactions.filter(t =>
-                    (t.Category?.toLowerCase().includes(searchFilterValue)) ||
-                    (t.Note && t.Note.toLowerCase().includes(searchFilterValue)) ||
-                    (t.Amount.toString().includes(searchFilterValue)) ||
-                    (t.Date.includes(searchFilterValue)) || // Search within YYYY-MM-DD string
-                    (t.User?.toLowerCase().includes(searchFilterValue))
-                );
-            }
-
-            // Apply Time Period Filter (Weekly, Monthly, Yearly) OR Specific Date Filter
-            if (activeTimeFilter) {
-                 // Time period filter overrides specific date filter
-                filteredTransactions = applyTimePeriodFilter(filteredTransactions, activeTimeFilter);
-            } else if (dateFilterValue && isValidDate(dateFilterValue)) {
-                 // Apply specific date filter if no time period is active
-                const targetDate = dayjs(dateFilterValue);
-                filteredTransactions = filteredTransactions.filter(t => dayjs(t.Date).isSame(targetDate, 'day'));
-            }
-
-             console.log(`Filtering applied. ${filteredTransactions.length} transactions remaining.`);
-            // Render the filtered list and update summary
-            renderTransactions(filteredTransactions);
-            updateSummary(filteredTransactions);
-            updateFilterDisplay(); // Update the text showing current filters
-        }
-
-        function applyTimePeriodFilter(data, filterType) {
-            try {
-                 switch (filterType) {
-                    case 'weekly':
-                        const weekYear = parseInt(elements.weekYearSelect.value);
-                        const weekMonth = parseInt(elements.weekMonthSelect.value); // 1-12
-                        const weekNum = parseInt(elements.weekSelect.value); // 1-5+
-                        const { start: weekStart, end: weekEnd } = getWeekDates(weekYear, weekMonth, weekNum);
-                         if (weekStart && weekEnd && weekStart.isValid() && weekEnd.isValid()) {
-                             console.log(`Filtering weekly: ${weekStart.format('YYYY-MM-DD')} to ${weekEnd.format('YYYY-MM-DD')}`);
-                             return data.filter(t => dayjs(t.Date).isBetween(weekStart, weekEnd, 'day', '[]')); // Inclusive
-                         } else {
-                             console.warn("Invalid week dates generated for filter.");
-                             return []; // Return empty if dates are invalid
-                         }
-                    case 'monthly':
-                        const month = parseInt(elements.monthSelect.value) - 1; // dayjs months are 0-indexed
-                        const monthYear = parseInt(elements.monthYearSelect.value);
-                         console.log(`Filtering monthly: Month ${month + 1}, Year ${monthYear}`);
-                        return data.filter(t => {
-                            const transactionDate = dayjs(t.Date);
-                            return transactionDate.year() === monthYear && transactionDate.month() === month;
-                        });
-                    case 'yearly':
-                        const year = parseInt(elements.yearSelect.value);
-                         console.log(`Filtering yearly: Year ${year}`);
-                        return data.filter(t => dayjs(t.Date).year() === year);
-                    default:
-                        return data; // No filter applied if type is unknown
-                }
-            } catch (error) {
-               console.error("Error applying time period filter:", error);
-               showNotification("Error applying time filter.", "error");
-               return data; // Return original data on error
-            }
-        }
-
-        function getWeekDates(year, month, weekNumber) {
-             // dayjs month is 0-indexed, input month is 1-indexed
-             const monthIndex = month - 1;
-             const firstDayOfMonth = dayjs().year(year).month(monthIndex).startOf('month');
-             const lastDayOfMonth = dayjs().year(year).month(monthIndex).endOf('month');
-
-             if (!firstDayOfMonth.isValid() || !lastDayOfMonth.isValid()) {
-                 console.error("Invalid year/month for getWeekDates:", year, month);
-                 return { start: null, end: null };
-             }
-
-             let startDate, endDate;
-
-             if (weekNumber === 1) {
-                 startDate = firstDayOfMonth;
-                 endDate = startDate.add(6, 'day');
-             } else {
-                 // Calculate start day based on offset from the first day
-                 // This simple approach assumes weeks start on day 1, 8, 15, 22, 29...
-                 // It might not align perfectly with calendar weeks (Sun-Sat or Mon-Sun)
-                 // but matches the 1, 2, 3, 4, 5+ logic.
-                 const startOffset = (weekNumber - 1) * 7;
-                 startDate = firstDayOfMonth.add(startOffset, 'day');
-
-                 // If calculated start date is outside the target month (can happen for week 5+), adjust
-                 if (startDate.month() !== monthIndex) {
-                      // Handle week 5+ case: Start from the beginning of the last week that falls within the month
-                      if (weekNumber >= 5) {
-                          // Find the start of the last week (e.g., if month ends Friday 31st, last week starts Monday 27th)
-                          // A simpler approach for "5+" might be just ">= day 29"
-                           startDate = firstDayOfMonth.date(29); // Start week 5+ on the 29th
-                           if(startDate.month() !== monthIndex) { // If month is short, adjust
-                              startDate = lastDayOfMonth.subtract(lastDayOfMonth.date() % 7, 'day').startOf('day');
-                               if(startDate.isBefore(firstDayOfMonth)) startDate = firstDayOfMonth; // Safety
-                           }
-                      } else {
-                         // Calculated week start is in next month, means invalid week for this month
-                         console.warn(`Week ${weekNumber} start date calculation resulted outside month ${month}.`);
-                         return { start: null, end: null };
-                      }
-                 }
-                 endDate = startDate.add(6, 'day');
-             }
-
-             // Clamp endDate to the end of the month
-             if (endDate.isAfter(lastDayOfMonth)) {
-                 endDate = lastDayOfMonth;
-             }
-             // Clamp startDate to the start of the month (safety)
-             if (startDate.isBefore(firstDayOfMonth)) {
-                startDate = firstDayOfMonth;
-             }
-             // Ensure start is not after end
-             if(startDate.isAfter(endDate)) {
-                console.warn("Calculated week start is after end:", startDate.format(), endDate.format());
-                return { start: null, end: null };
-             }
-
-
-             return { start: startDate.startOf('day'), end: endDate.endOf('day') };
-        }
-
+        function applyFiltersAndRender() { selectedTransactionIds.clear(); const typeFilterValue = elements.typeFilter.value; const dateFilterValue = elements.dateFilter.value; const searchFilterValue = elements.searchInput.value.toLowerCase().trim(); const userFilterValue = elements.userFilter.value; let filteredTransactions = [...transactions]; if (typeFilterValue !== 'all') { filteredTransactions = filteredTransactions.filter(t => t.Type === typeFilterValue); } if (userFilterValue !== 'all') { filteredTransactions = filteredTransactions.filter(t => t.User === userFilterValue); } if (searchFilterValue) { filteredTransactions = filteredTransactions.filter(t => (t.Category?.toLowerCase().includes(searchFilterValue)) || (t.Note && t.Note.toLowerCase().includes(searchFilterValue)) || (t.Amount.toString().includes(searchFilterValue)) || (t.Date.includes(searchFilterValue)) || (t.User?.toLowerCase().includes(searchFilterValue)) ); } if (activeTimeFilter) { filteredTransactions = applyTimePeriodFilter(filteredTransactions, activeTimeFilter); } else if (dateFilterValue && isValidDate(dateFilterValue)) { const targetDate = dayjs(dateFilterValue); filteredTransactions = filteredTransactions.filter(t => dayjs(t.Date).isSame(targetDate, 'day')); } console.log(`Filtering applied. ${filteredTransactions.length} transactions remaining.`); renderTransactions(filteredTransactions); updateSummary(filteredTransactions); updateFilterDisplay(); }
+        function applyTimePeriodFilter(data, filterType) { try { switch (filterType) { case 'weekly': const weekYear = parseInt(elements.weekYearSelect.value); const weekMonth = parseInt(elements.weekMonthSelect.value); const weekNum = parseInt(elements.weekSelect.value); const { start: weekStart, end: weekEnd } = getWeekDates(weekYear, weekMonth, weekNum); if (weekStart && weekEnd && weekStart.isValid() && weekEnd.isValid()) { console.log(`Filtering weekly: ${weekStart.format('YYYY-MM-DD')} to ${weekEnd.format('YYYY-MM-DD')}`); return data.filter(t => dayjs(t.Date).isBetween(weekStart, weekEnd, 'day', '[]')); } else { console.warn("Invalid week dates generated."); return []; } case 'monthly': const month = parseInt(elements.monthSelect.value) - 1; const monthYear = parseInt(elements.monthYearSelect.value); console.log(`Filtering monthly: Month ${month + 1}, Year ${monthYear}`); return data.filter(t => { const transactionDate = dayjs(t.Date); return transactionDate.year() === monthYear && transactionDate.month() === month; }); case 'yearly': const year = parseInt(elements.yearSelect.value); console.log(`Filtering yearly: Year ${year}`); return data.filter(t => dayjs(t.Date).year() === year); default: return data; } } catch (error) { console.error("Error applying time period filter:", error); showNotification("Error applying time filter.", "error"); return data; } }
+        function getWeekDates(year, month, weekNumber) { const monthIndex = month - 1; const firstDayOfMonth = dayjs().year(year).month(monthIndex).startOf('month'); const lastDayOfMonth = dayjs().year(year).month(monthIndex).endOf('month'); if (!firstDayOfMonth.isValid() || !lastDayOfMonth.isValid()) { console.error("Invalid year/month for getWeekDates:", year, month); return { start: null, end: null }; } let startDate, endDate; if (weekNumber === 1) { startDate = firstDayOfMonth; endDate = startDate.add(6, 'day'); } else { const startOffset = (weekNumber - 1) * 7; startDate = firstDayOfMonth.add(startOffset, 'day'); if (startDate.month() !== monthIndex) { if (weekNumber >= 5) { startDate = firstDayOfMonth.date(29); if(startDate.month() !== monthIndex) { startDate = lastDayOfMonth.subtract(lastDayOfMonth.date() % 7, 'day').startOf('day'); if(startDate.isBefore(firstDayOfMonth)) startDate = firstDayOfMonth; } } else { console.warn(`Week ${weekNumber} start calculation resulted outside month ${month}.`); return { start: null, end: null }; } } endDate = startDate.add(6, 'day'); } if (endDate.isAfter(lastDayOfMonth)) { endDate = lastDayOfMonth; } if (startDate.isBefore(firstDayOfMonth)) { startDate = firstDayOfMonth; } if(startDate.isAfter(endDate)) { console.warn("Calculated week start is after end:", startDate.format(), endDate.format()); return { start: null, end: null }; } return { start: startDate.startOf('day'), end: endDate.endOf('day') }; }
 
         // --- SECTION: Event Handling ---
-        function setupEventListeners() {
-            // Form Submissions
-            elements.addExpenseBtn.addEventListener('click', () => addTransaction('expense'));
-            elements.addIncomeBtn.addEventListener('click', () => addTransaction('income'));
-
-            // Tabs
-            elements.tabsContainer.addEventListener('click', handleTabClick);
-
-            // Filters
-            elements.searchInput.addEventListener('input', debounce(applyFiltersAndRender, 300)); // Debounce search input
-            elements.typeFilter.addEventListener('change', applyFiltersAndRender);
-            elements.userFilter.addEventListener('change', applyFiltersAndRender);
-            elements.dateFilter.addEventListener('change', handleDateFilterChange);
-            elements.clearFiltersBtn.addEventListener('click', handleClearFilters);
-
-            // Time Period Filters
-            elements.weeklyBtn.addEventListener('click', () => handleTimeFilterToggle('weekly'));
-            elements.monthlyBtn.addEventListener('click', () => handleTimeFilterToggle('monthly'));
-            elements.yearlyBtn.addEventListener('click', () => handleTimeFilterToggle('yearly'));
-
-            // Sub-Filter Dropdowns
-            [elements.weekSelect, elements.weekMonthSelect, elements.weekYearSelect,
-             elements.monthSelect, elements.monthYearSelect, elements.yearSelect]
-             .forEach(select => select.addEventListener('change', applyFiltersAndRender));
-
-             // Transaction List Actions (Edit/Delete clicks, Checkbox changes)
-            elements.transactionList.addEventListener('click', handleTransactionListClick);
-            elements.transactionList.addEventListener('change', handleTransactionListChange); // For checkboxes
-
-             // Select All Checkbox
-            elements.selectAllCheckbox.addEventListener('change', handleSelectAllChange);
-
-            // Bulk Actions
-            elements.bulkDeleteBtn.addEventListener('click', openBulkDeleteModal);
-            elements.bulkDeleteConfirmBtn.addEventListener('click', handleBulkDeleteConfirm); // Connect new handler
-            elements.bulkDeleteCancelBtn.addEventListener('click', closeModal);
-
-            // Modals (Edit, Delete, Export)
-            elements.editSaveBtn.addEventListener('click', saveEditedTransaction);
-            elements.deleteConfirmBtn.addEventListener('click', confirmDelete);
-            elements.editCancelBtn.addEventListener('click', closeModal);
-            elements.deleteCancelBtn.addEventListener('click', closeModal);
-
-            // Export
-            elements.exportBtn.addEventListener('click', openExportModal);
-            elements.exportConfirmBtn.addEventListener('click', exportData);
-            elements.exportCancelBtn.addEventListener('click', closeModal);
-            elements.exportRangeSelect.addEventListener('change', toggleExportDateRangePicker);
-
-            // Theme Toggle
-            elements.themeCheckbox.addEventListener('change', handleThemeToggle);
-
-             // Close modal on Escape key
-             document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeModal(); });
-
-            console.log("Event listeners set up.");
-        }
-
-        function handleTabClick(event) {
-            if (event.target.classList.contains('tab') && event.target.dataset.tab) {
-                switchTab(event.target.dataset.tab);
-            }
-        }
-
-        function handleDateFilterChange() {
-            // If a time period filter (weekly/monthly/yearly) was active, deactivate it
-            if (activeTimeFilter) {
-                activeTimeFilter = null;
-                clearActiveTimeFilterButton();
-                hideSubFilterRows();
-            }
-            applyFiltersAndRender(); // Apply the new date filter
-        }
-
-        function handleClearFilters() {
-            elements.typeFilter.value = 'all';
-            elements.dateFilter.value = '';
-            elements.searchInput.value = '';
-            elements.userFilter.value = 'all';
-            activeTimeFilter = null; // Clear active time filter state
-            clearActiveTimeFilterButton(); // Deactivate time filter buttons
-            hideSubFilterRows(); // Hide sub-filter rows
-            setDefaultDatesAndFilters(); // Reset sub-filter dropdowns to defaults
-            applyFiltersAndRender(); // Re-render with all filters cleared
-             showNotification("Filters cleared.", "info");
-        }
-
-        function handleTimeFilterToggle(filterType) {
-            hideSubFilterRows(); // Hide all sub-filters first
-
-            if (activeTimeFilter === filterType) {
-                // If clicking the currently active filter, deactivate it
-                activeTimeFilter = null;
-                clearActiveTimeFilterButton();
-                 console.log(`Time filter '${filterType}' deactivated.`);
-            } else {
-                // Activate the new filter
-                activeTimeFilter = filterType;
-                clearActiveTimeFilterButton(); // Deactivate any other button
-                document.getElementById(`${filterType}-btn`)?.classList.add('active'); // Activate the clicked button
-                document.getElementById(`${filterType}-filters`)?.style.display = 'flex'; // Show corresponding sub-filters
-                elements.dateFilter.value = ''; // Clear specific date filter when time period is active
-                 console.log(`Time filter '${filterType}' activated.`);
-            }
-            applyFiltersAndRender(); // Apply the changes
-        }
-
-        function handleTransactionListClick(event) {
-            const editButton = event.target.closest('.edit-btn');
-            const deleteButton = event.target.closest('.delete-btn');
-            const listItem = event.target.closest('li[data-id]');
-
-            if (!listItem) return; // Click wasn't on a list item or its buttons
-
-            const transactionId = listItem.dataset.id;
-
-            if (editButton) {
-                 console.log("Edit button clicked for ID:", transactionId);
-                openEditModal(transactionId);
-            } else if (deleteButton) {
-                 console.log("Delete button clicked for ID:", transactionId);
-                openDeleteModal(transactionId);
-            }
-             // Handle click on list item itself for selection? (Currently handled by checkbox change)
-        }
-
-        function handleTransactionListChange(event) {
-             // Specifically listen for changes on the transaction checkboxes
-            const checkbox = event.target.closest('.transaction-checkbox');
-            const listItem = event.target.closest('li[data-id]');
-
-             // Ensure it's a transaction checkbox and not the 'select all' or theme checkbox
-            if (checkbox && listItem && checkbox.id !== 'select-all-checkbox' && checkbox.id !== 'theme-checkbox') {
-                const transactionId = listItem.dataset.id;
-                updateListItemSelection(listItem, checkbox.checked);
-                updateBulkActionUI(); // Update based on selection change
-                 console.log(`Checkbox changed for ID: ${transactionId}, Checked: ${checkbox.checked}`);
-            }
-        }
-
-        function handleSelectAllChange() {
-            const isChecked = elements.selectAllCheckbox.checked;
-            console.log(`Select All checkbox changed: ${isChecked}`);
-            // Select/deselect all VISIBLE items
-            const visibleItems = elements.transactionList.querySelectorAll('li[data-id]:not(.transaction-list-item--removing)');
-            visibleItems.forEach(li => {
-                updateListItemSelection(li, isChecked);
-            });
-            updateBulkActionUI(); // Update button visibility and checkbox state
-        }
-
-        function handleThemeToggle() {
-            const newTheme = elements.themeCheckbox.checked ? 'dark' : 'light';
-            applyTheme(newTheme);
-        }
-
-        // Debounce utility
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+        function setupEventListeners() { elements.addExpenseBtn.addEventListener('click', () => addTransaction('expense')); elements.addIncomeBtn.addEventListener('click', () => addTransaction('income')); elements.tabsContainer.addEventListener('click', handleTabClick); elements.searchInput.addEventListener('input', debounce(applyFiltersAndRender, 300)); elements.typeFilter.addEventListener('change', applyFiltersAndRender); elements.userFilter.addEventListener('change', applyFiltersAndRender); elements.dateFilter.addEventListener('change', handleDateFilterChange); elements.clearFiltersBtn.addEventListener('click', handleClearFilters); elements.weeklyBtn.addEventListener('click', () => handleTimeFilterToggle('weekly')); elements.monthlyBtn.addEventListener('click', () => handleTimeFilterToggle('monthly')); elements.yearlyBtn.addEventListener('click', () => handleTimeFilterToggle('yearly')); [elements.weekSelect, elements.weekMonthSelect, elements.weekYearSelect, elements.monthSelect, elements.monthYearSelect, elements.yearSelect] .forEach(select => select.addEventListener('change', applyFiltersAndRender)); elements.transactionList.addEventListener('click', handleTransactionListClick); elements.transactionList.addEventListener('change', handleTransactionListChange); elements.selectAllCheckbox.addEventListener('change', handleSelectAllChange); elements.bulkDeleteBtn.addEventListener('click', openBulkDeleteModal); elements.bulkDeleteConfirmBtn.addEventListener('click', handleBulkDeleteConfirm); elements.bulkDeleteCancelBtn.addEventListener('click', closeModal); elements.editSaveBtn.addEventListener('click', saveEditedTransaction); elements.deleteConfirmBtn.addEventListener('click', confirmDelete); elements.editCancelBtn.addEventListener('click', closeModal); elements.deleteCancelBtn.addEventListener('click', closeModal); elements.exportBtn.addEventListener('click', openExportModal); elements.exportConfirmBtn.addEventListener('click', exportData); elements.exportCancelBtn.addEventListener('click', closeModal); elements.exportRangeSelect.addEventListener('change', toggleExportDateRangePicker); elements.themeCheckbox.addEventListener('change', handleThemeToggle); document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeModal(); }); console.log("Event listeners set up."); }
+        function handleTabClick(event) { if (event.target.classList.contains('tab') && event.target.dataset.tab) { switchTab(event.target.dataset.tab); } }
+        function handleDateFilterChange() { if (activeTimeFilter) { activeTimeFilter = null; clearActiveTimeFilterButton(); hideSubFilterRows(); } applyFiltersAndRender(); }
+        function handleClearFilters() { elements.typeFilter.value = 'all'; elements.dateFilter.value = ''; elements.searchInput.value = ''; elements.userFilter.value = 'all'; activeTimeFilter = null; clearActiveTimeFilterButton(); hideSubFilterRows(); setDefaultDatesAndFilters(); applyFiltersAndRender(); showNotification("Filters cleared.", "info"); }
+        function handleTimeFilterToggle(filterType) { hideSubFilterRows(); if (activeTimeFilter === filterType) { activeTimeFilter = null; clearActiveTimeFilterButton(); console.log(`Time filter '${filterType}' deactivated.`); } else { activeTimeFilter = filterType; clearActiveTimeFilterButton(); document.getElementById(`${filterType}-btn`)?.classList.add('active'); document.getElementById(`${filterType}-filters`)?.style.display = 'flex'; elements.dateFilter.value = ''; console.log(`Time filter '${filterType}' activated.`); } applyFiltersAndRender(); }
+        function handleTransactionListClick(event) { const editButton = event.target.closest('.edit-btn'); const deleteButton = event.target.closest('.delete-btn'); const listItem = event.target.closest('li[data-id]'); if (!listItem) return; const transactionId = listItem.dataset.id; if (editButton) { console.log("Edit button clicked for ID:", transactionId); openEditModal(transactionId); } else if (deleteButton) { console.log("Delete button clicked for ID:", transactionId); openDeleteModal(transactionId); } }
+        function handleTransactionListChange(event) { const checkbox = event.target.closest('.transaction-checkbox'); const listItem = event.target.closest('li[data-id]'); if (checkbox && listItem && checkbox.id !== 'select-all-checkbox' && checkbox.id !== 'theme-checkbox') { const transactionId = listItem.dataset.id; updateListItemSelection(listItem, checkbox.checked); updateBulkActionUI(); console.log(`Checkbox changed for ID: ${transactionId}, Checked: ${checkbox.checked}`); } }
+        function handleSelectAllChange() { const isChecked = elements.selectAllCheckbox.checked; console.log(`Select All checkbox changed: ${isChecked}`); const visibleItems = elements.transactionList.querySelectorAll('li[data-id]:not(.transaction-list-item--removing)'); visibleItems.forEach(li => { updateListItemSelection(li, isChecked); }); updateBulkActionUI(); }
+        function handleThemeToggle() { const newTheme = elements.themeCheckbox.checked ? 'dark' : 'light'; applyTheme(newTheme); }
+        function debounce(func, wait) { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; }
 
         // --- SECTION: Modal Logic ---
-        function closeModal() {
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.style.display = 'none';
-            });
-             // Clear specific modal inputs if needed
-             if(elements.editId) elements.editId.value = '';
-             if(elements.deleteId) elements.deleteId.value = '';
-            console.log("Modals closed.");
-        }
-
-        function openEditModal(transactionId) {
-            const transaction = transactions.find(tx => String(tx.ID) === transactionId);
-            if (!transaction) {
-                showNotification("Error: Could not find transaction data to edit.", "error");
-                return;
-            }
-
-            // Populate modal fields
-            elements.editId.value = transactionId;
-            elements.editType.value = transaction.Type; // Store type for category logic
-            elements.editAmount.value = transaction.Amount;
-            elements.editDate.value = transaction.Date; // Assumes YYYY-MM-DD format
-            elements.editNote.value = transaction.Note || '';
-
-            // Dynamically populate category dropdown based on transaction type
-            elements.editCategoryContainer.innerHTML = ''; // Clear previous
-            const label = document.createElement('label');
-            label.htmlFor = 'edit-category-select';
-            label.textContent = 'Category:';
-            const select = document.createElement('select');
-            select.id = 'edit-category-select';
-             select.className = 'filter-select'; // Use existing class for styling
-
-            const categories = (transaction.Type === 'income') ? AppConfig.incomeCategories : AppConfig.expenseCategories;
-            categories.forEach(cat => {
-                const option = new Option(cat, cat);
-                if (cat === transaction.Category) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
-            });
-
-            elements.editCategoryContainer.appendChild(label);
-            elements.editCategoryContainer.appendChild(select);
-
-            // Show the modal
-            elements.editModal.style.display = 'flex';
-             console.log("Edit modal opened for ID:", transactionId);
-        }
-
-        function openDeleteModal(transactionId) {
-            elements.deleteId.value = transactionId; // Store the ID in the hidden input
-            elements.deleteModal.style.display = 'flex';
-             console.log("Delete confirmation modal opened for ID:", transactionId);
-        }
-
-        function openBulkDeleteModal() {
-            const count = selectedTransactionIds.size;
-            if (count === 0) {
-                showNotification('No transactions selected to delete.', 'warning');
-                return;
-            }
-            elements.bulkDeleteCount.textContent = count; // Update count in modal text
-            elements.bulkDeleteModal.style.display = 'flex';
-             console.log(`Bulk delete confirmation modal opened for ${count} items.`);
-        }
-
-        function openExportModal() {
-            // Reset export options to default
-            elements.exportFormatSelect.value = 'csv';
-            elements.exportRangeSelect.value = 'all';
-             // Ensure year selectors in export modal are populated/updated
-             populateYearSelectors(); // Re-populate just in case years changed
-             // Set default dates for pickers (current month/year etc.)
-            toggleExportDateRangePicker(); // Show/hide date pickers based on default range ('all')
-            elements.exportModal.style.display = 'flex';
-             console.log("Export modal opened.");
-        }
-
-        function toggleExportDateRangePicker() {
-            const selectedRange = elements.exportRangeSelect.value;
-
-            // Hide all specific range containers initially
-            elements.exportDateRangeContainer.style.display = 'none';
-            elements.exportMonthYearContainer.style.display = 'none';
-            elements.exportYearContainer.style.display = 'none';
-
-            // Show the relevant container based on selection
-            if (selectedRange === 'custom') {
-                elements.exportDateRangeContainer.style.display = 'flex';
-                 // Set default custom dates (e.g., last 30 days)
-                 if(!elements.exportDateFrom.value) elements.exportDateFrom.value = dayjs().subtract(30, 'day').format('YYYY-MM-DD');
-                 if(!elements.exportDateTo.value) elements.exportDateTo.value = dayjs().format('YYYY-MM-DD');
-            } else if (selectedRange === 'month') {
-                elements.exportMonthYearContainer.style.display = 'flex';
-                 // Set default month/year (e.g., current month and year)
-                elements.exportMonthSelect.value = dayjs().month() + 1; // 1-12
-                elements.exportMonthYearSelect.value = dayjs().year();
-            } else if (selectedRange === 'year') {
-                elements.exportYearContainer.style.display = 'block';
-                // Set default year (e.g., current year)
-                elements.exportYearSelect.value = dayjs().year();
-            }
-        }
+        function closeModal() { document.querySelectorAll('.modal').forEach(modal => { modal.style.display = 'none'; }); if(elements.editId) elements.editId.value = ''; if(elements.deleteId) elements.deleteId.value = ''; console.log("Modals closed."); }
+        function openEditModal(transactionId) { const transaction = transactions.find(tx => String(tx.ID) === transactionId); if (!transaction) { showNotification("Error: Could not find transaction data to edit.", "error"); return; } elements.editId.value = transactionId; elements.editType.value = transaction.Type; elements.editAmount.value = transaction.Amount; elements.editDate.value = transaction.Date; elements.editNote.value = transaction.Note || ''; elements.editCategoryContainer.innerHTML = ''; const label = document.createElement('label'); label.htmlFor = 'edit-category-select'; label.textContent = 'Category:'; const select = document.createElement('select'); select.id = 'edit-category-select'; select.className = 'filter-select'; const categories = (transaction.Type === 'income') ? AppConfig.incomeCategories : AppConfig.expenseCategories; categories.forEach(cat => { const option = new Option(cat, cat); if (cat === transaction.Category) { option.selected = true; } select.appendChild(option); }); elements.editCategoryContainer.appendChild(label); elements.editCategoryContainer.appendChild(select); elements.editModal.style.display = 'flex'; console.log("Edit modal opened for ID:", transactionId); }
+        function openDeleteModal(transactionId) { elements.deleteId.value = transactionId; elements.deleteModal.style.display = 'flex'; console.log("Delete confirmation modal opened for ID:", transactionId); }
+        function openBulkDeleteModal() { const count = selectedTransactionIds.size; if (count === 0) { showNotification('No transactions selected to delete.', 'warning'); return; } elements.bulkDeleteCount.textContent = count; elements.bulkDeleteModal.style.display = 'flex'; console.log(`Bulk delete confirmation modal opened for ${count} items.`); }
+        function openExportModal() { elements.exportFormatSelect.value = 'csv'; elements.exportRangeSelect.value = 'all'; populateYearSelectors(); toggleExportDateRangePicker(); elements.exportModal.style.display = 'flex'; console.log("Export modal opened."); }
+        function toggleExportDateRangePicker() { const selectedRange = elements.exportRangeSelect.value; elements.exportDateRangeContainer.style.display = 'none'; elements.exportMonthYearContainer.style.display = 'none'; elements.exportYearContainer.style.display = 'none'; if (selectedRange === 'custom') { elements.exportDateRangeContainer.style.display = 'flex'; if(!elements.exportDateFrom.value) elements.exportDateFrom.value = dayjs().subtract(30, 'day').format('YYYY-MM-DD'); if(!elements.exportDateTo.value) elements.exportDateTo.value = dayjs().format('YYYY-MM-DD'); } else if (selectedRange === 'month') { elements.exportMonthYearContainer.style.display = 'flex'; elements.exportMonthSelect.value = dayjs().month() + 1; elements.exportMonthYearSelect.value = dayjs().year(); } else if (selectedRange === 'year') { elements.exportYearContainer.style.display = 'block'; elements.exportYearSelect.value = dayjs().year(); } }
 
         // --- SECTION: Export Logic ---
-        function exportData() {
-            const format = elements.exportFormatSelect.value;
-            const range = elements.exportRangeSelect.value;
-            let dataToExport = [];
-
-             console.log(`Attempting export: Format=${format}, Range=${range}`);
-
-            // Determine data set based on selected range
-            try {
-                switch (range) {
-                    case 'all':
-                        dataToExport = [...transactions];
-                        break;
-                    case 'current':
-                        dataToExport = [...currentlyDisplayedTransactions];
-                        break;
-                    case 'month':
-                        const exportMonth = parseInt(elements.exportMonthSelect.value); // 1-12
-                        const exportMonthYear = parseInt(elements.exportMonthYearSelect.value);
-                        dataToExport = transactions.filter(t => {
-                            const txDate = dayjs(t.Date);
-                            return txDate.year() === exportMonthYear && txDate.month() === (exportMonth - 1); // month is 0-indexed
-                        });
-                        break;
-                    case 'year':
-                        const exportYear = parseInt(elements.exportYearSelect.value);
-                        dataToExport = transactions.filter(t => dayjs(t.Date).year() === exportYear);
-                        break;
-                    case 'custom':
-                        const fromDateStr = elements.exportDateFrom.value;
-                        const toDateStr = elements.exportDateTo.value;
-                        if (!fromDateStr || !isValidDate(fromDateStr) || !toDateStr || !isValidDate(toDateStr)) {
-                            showNotification('Invalid custom date range selected.', 'error'); return;
-                        }
-                        const dateFrom = dayjs(fromDateStr).startOf('day');
-                        const dateTo = dayjs(toDateStr).endOf('day');
-                        if (dateFrom.isAfter(dateTo)) {
-                            showNotification('"From" date cannot be after "To" date.', 'error'); return;
-                        }
-                        dataToExport = transactions.filter(t => dayjs(t.Date).isBetween(dateFrom, dateTo, 'day', '[]')); // Inclusive
-                        break;
-                    default: // Fallback to all
-                        dataToExport = [...transactions];
-                }
-            } catch (error) {
-               console.error("Error filtering data for export:", error);
-               showNotification("Error preparing data for export.", "error");
-               return;
-            }
-
-
-            if (dataToExport.length === 0) {
-                showNotification("No transactions found for the selected export range.", 'warning');
-                return;
-            }
-
-             // Sort data chronologically for export
-             dataToExport.sort((a, b) => a.Timestamp - b.Timestamp);
-
-             console.log(`Exporting ${dataToExport.length} transactions.`);
-
-            // Generate file content based on format
-            let fileContent = '', mimeType = 'text/plain', fileExtension = '.txt';
-            const filenameBase = `SharedMoneyTracker_${range}_${dayjs().format('YYYYMMDD')}`;
-
-            try {
-                if (format === 'txt') {
-                    fileContent = generateTextExport(dataToExport);
-                    mimeType = 'text/plain';
-                    fileExtension = '.txt';
-                } else if (format === 'csv') {
-                    fileContent = generateCSVExport(dataToExport);
-                    mimeType = 'text/csv;charset=utf-8;'; // Include charset for broader compatibility
-                    fileExtension = '.csv';
-                } else if (format === 'json') {
-                    fileContent = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
-                    mimeType = 'application/json';
-                    fileExtension = '.json';
-                } else {
-                   showNotification("Invalid export format selected.", "error");
-                   return;
-                }
-
-                 // Trigger download
-                triggerDownload(fileContent, mimeType, filenameBase + fileExtension);
-
-                closeModal(); // Close export modal on success
-                showNotification(`Successfully exported ${dataToExport.length} transactions as ${format.toUpperCase()}.`, 'success');
-
-            } catch (error) {
-               console.error("Error generating or downloading export file:", error);
-               showNotification(`Error during export: ${error.message}`, "error");
-            }
-        }
-
-        function generateTextExport(data) {
-            let txt = `Shared Money Tracker Export (${dayjs().format('YYYY-MM-DD HH:mm')})\n`;
-            txt += `Range: ${elements.exportRangeSelect.options[elements.exportRangeSelect.selectedIndex].text}\n`;
-            txt += "==================================================\n";
-            txt += "Date\t\tTime\t\tType\tAmount\tCategory\tUser\tNote\n";
-            txt += "==================================================\n";
-
-            data.forEach(t => {
-                const dateStr = dayjs(t.Date).format('YYYY-MM-DD');
-                const timeStr = dayjs(t.Timestamp).format('h:mm A');
-                const amountStr = formatCurrency(t.Amount).padStart(8); // Pad for alignment
-                txt += `${dateStr}\t${timeStr}\t${t.Type.padEnd(7)}\t${amountStr}\t${t.Category || ''}\t${t.User || ''}\t${t.Note || ''}\n`;
-            });
-
-            // Add Summary
-            const income = data.filter(t => t.Type === 'income').reduce((sum, t) => sum + t.Amount, 0);
-            const expenses = data.filter(t => t.Type === 'expense').reduce((sum, t) => sum + t.Amount, 0);
-            txt += "==================================================\n";
-            txt += "Summary for Exported Range:\n";
-            txt += `Total Income:   ${formatCurrency(income)}\n`;
-            txt += `Total Expenses: ${formatCurrency(expenses)}\n`;
-            txt += `Net Balance:    ${formatCurrency(income - expenses)}\n`;
-            txt += "==================================================\n";
-            return txt;
-        }
-
-        function generateCSVExport(data) {
-             // Define headers matching the likely sheet structure and transaction object keys
-             // Ensure order matches desired CSV output
-            const headers = ['ID', 'Timestamp', 'Date', 'Time', 'Type', 'Amount', 'Category', 'User', 'Note'];
-            let csvContent = headers.join(',') + '\n'; // Header row
-
-             // Function to safely format CSV fields (handle commas, quotes, newlines)
-             const escapeCSV = (field) => {
-                 if (field === null || field === undefined) return '';
-                 let str = String(field);
-                 // If field contains comma, newline, or double quote, enclose in double quotes
-                 if (str.includes(',') || str.includes('\n') || str.includes('"')) {
-                     // Escape existing double quotes by doubling them
-                     str = str.replace(/"/g, '""');
-                     // Enclose the entire field in double quotes
-                     return `"${str}"`;
-                 }
-                 return str; // Return as is if no special characters
-             };
-
-            data.forEach(t => {
-                 const timeStr = dayjs(t.Timestamp).format('HH:mm:ss'); // Use 24hr format for CSV clarity
-                 const row = [
-                     escapeCSV(t.ID),
-                     escapeCSV(t.Timestamp),
-                     escapeCSV(t.Date), // Already YYYY-MM-DD
-                     escapeCSV(timeStr),
-                     escapeCSV(t.Type),
-                     t.Amount.toFixed(2), // Amount as number, no need to escape unless locale uses comma? Stick to standard format.
-                     escapeCSV(t.Category),
-                     escapeCSV(t.User),
-                     escapeCSV(t.Note)
-                 ];
-                 csvContent += row.join(',') + '\n';
-            });
-
-             // Add Summary Rows (Optional)
-             const income = data.filter(t=>t.Type==='income').reduce((s,t)=>s+t.Amount,0);
-             const exp = data.filter(t=>t.Type==='expense').reduce((s,t)=>s+t.Amount,0);
-             csvContent += '\nSummary,,,,,,,,\n'; // Add empty summary header row
-             csvContent += `Total Income,${income.toFixed(2)},,,,,,,,\n`;
-             csvContent += `Total Expenses,${exp.toFixed(2)},,,,,,,,\n`;
-             csvContent += `Net Balance,${(income-exp).toFixed(2)},,,,,,,,\n`;
-
-            return csvContent;
-        }
-
-        function triggerDownload(content, mimeType, filename) {
-             // Use Blob to handle potentially large data and proper MIME type
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const anchor = document.createElement('a');
-
-            anchor.href = url;
-            anchor.download = filename;
-
-            // Append anchor, click, remove, and revoke URL
-            document.body.appendChild(anchor);
-            anchor.click();
-            document.body.removeChild(anchor);
-            URL.revokeObjectURL(url);
-            console.log(`Download triggered for: ${filename}`);
-        }
-
+        function exportData() { const format = elements.exportFormatSelect.value; const range = elements.exportRangeSelect.value; let dataToExport = []; console.log(`Attempting export: Format=${format}, Range=${range}`); try { switch (range) { case 'all': dataToExport = [...transactions]; break; case 'current': dataToExport = [...currentlyDisplayedTransactions]; break; case 'month': const exportMonth = parseInt(elements.exportMonthSelect.value); const exportMonthYear = parseInt(elements.exportMonthYearSelect.value); dataToExport = transactions.filter(t => { const txDate = dayjs(t.Date); return txDate.year() === exportMonthYear && txDate.month() === (exportMonth - 1); }); break; case 'year': const exportYear = parseInt(elements.exportYearSelect.value); dataToExport = transactions.filter(t => dayjs(t.Date).year() === exportYear); break; case 'custom': const fromDateStr = elements.exportDateFrom.value; const toDateStr = elements.exportDateTo.value; if (!fromDateStr || !isValidDate(fromDateStr) || !toDateStr || !isValidDate(toDateStr)) { showNotification('Invalid custom date range selected.', 'error'); return; } const dateFrom = dayjs(fromDateStr).startOf('day'); const dateTo = dayjs(toDateStr).endOf('day'); if (dateFrom.isAfter(dateTo)) { showNotification('"From" date cannot be after "To" date.', 'error'); return; } dataToExport = transactions.filter(t => dayjs(t.Date).isBetween(dateFrom, dateTo, 'day', '[]')); break; default: dataToExport = [...transactions]; } } catch (error) { console.error("Error filtering data for export:", error); showNotification("Error preparing data for export.", "error"); return; } if (dataToExport.length === 0) { showNotification("No transactions found for the selected export range.", 'warning'); return; } dataToExport.sort((a, b) => a.Timestamp - b.Timestamp); console.log(`Exporting ${dataToExport.length} transactions.`); let fileContent = '', mimeType = 'text/plain', fileExtension = '.txt'; const filenameBase = `SharedMoneyTracker_${range}_${dayjs().format('YYYYMMDD')}`; try { if (format === 'txt') { fileContent = generateTextExport(dataToExport); mimeType = 'text/plain'; fileExtension = '.txt'; } else if (format === 'csv') { fileContent = generateCSVExport(dataToExport); mimeType = 'text/csv;charset=utf-8;'; fileExtension = '.csv'; } else if (format === 'json') { fileContent = JSON.stringify(dataToExport, null, 2); mimeType = 'application/json'; fileExtension = '.json'; } else { showNotification("Invalid export format selected.", "error"); return; } triggerDownload(fileContent, mimeType, filenameBase + fileExtension); closeModal(); showNotification(`Successfully exported ${dataToExport.length} transactions as ${format.toUpperCase()}.`, 'success'); } catch (error) { console.error("Error generating or downloading export file:", error); showNotification(`Error during export: ${error.message}`, "error"); } }
+        function generateTextExport(data) { let txt = `Shared Money Tracker Export (${dayjs().format('YYYY-MM-DD HH:mm')})\nRange: ${elements.exportRangeSelect.options[elements.exportRangeSelect.selectedIndex].text}\n==================================================\nDate\t\tTime\t\tType\tAmount\tCategory\tUser\tNote\n==================================================\n`; data.forEach(t => { const dateStr = dayjs(t.Date).format('YYYY-MM-DD'); const timeStr = dayjs(t.Timestamp).format('h:mm A'); const amountStr = formatCurrency(t.Amount).padStart(8); txt += `${dateStr}\t${timeStr}\t${t.Type.padEnd(7)}\t${amountStr}\t${t.Category || ''}\t${t.User || ''}\t${t.Note || ''}\n`; }); const income = data.filter(t => t.Type === 'income').reduce((sum, t) => sum + t.Amount, 0); const expenses = data.filter(t => t.Type === 'expense').reduce((sum, t) => sum + t.Amount, 0); txt += "==================================================\nSummary for Exported Range:\n"; txt += `Total Income:   ${formatCurrency(income)}\nTotal Expenses: ${formatCurrency(expenses)}\nNet Balance:    ${formatCurrency(income - expenses)}\n==================================================\n`; return txt; }
+        function generateCSVExport(data) { const headers = ['ID', 'Timestamp', 'Date', 'Time', 'Type', 'Amount', 'Category', 'User', 'Note']; let csvContent = headers.join(',') + '\n'; const escapeCSV = (field) => { if (field === null || field === undefined) return ''; let str = String(field); if (str.includes(',') || str.includes('\n') || str.includes('"')) { str = str.replace(/"/g, '""'); return `"${str}"`; } return str; }; data.forEach(t => { const timeStr = dayjs(t.Timestamp).format('HH:mm:ss'); const row = [ escapeCSV(t.ID), escapeCSV(t.Timestamp), escapeCSV(t.Date), escapeCSV(timeStr), escapeCSV(t.Type), t.Amount.toFixed(2), escapeCSV(t.Category), escapeCSV(t.User), escapeCSV(t.Note) ]; csvContent += row.join(',') + '\n'; }); const income = data.filter(t=>t.Type==='income').reduce((s,t)=>s+t.Amount,0); const exp = data.filter(t=>t.Type==='expense').reduce((s,t)=>s+t.Amount,0); csvContent += '\nSummary,,,,,,,,\nTotal Income,'+income.toFixed(2)+',,,,,,,,\nTotal Expenses,'+exp.toFixed(2)+',,,,,,,,\nNet Balance,'+(income-exp).toFixed(2)+',,,,,,,,\n'; return csvContent; }
+        function triggerDownload(content, mimeType, filename) { const blob = new Blob([content], { type: mimeType }); const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; document.body.appendChild(anchor); anchor.click(); document.body.removeChild(anchor); URL.revokeObjectURL(url); console.log(`Download triggered for: ${filename}`); }
 
         // --- SECTION: Utility Functions ---
-        function isValidDate(dateString) {
-             // Checks if a string is a valid YYYY-MM-DD date
-             return dayjs(dateString, 'YYYY-MM-DD', true).isValid();
-        }
-
-        function formatCurrency(number) {
-             // Simple currency formatting, adjust if needed for locale
-             return `$${Number(number).toFixed(2)}`;
-        }
-
-        function escapeHTML(str) {
-             if (!str) return '';
-             return String(str)
-                 .replace(/&/g, '&amp;')
-                 .replace(/</g, '&lt;')
-                 .replace(/>/g, '&gt;')
-                 .replace(/"/g, '&quot;')
-                 .replace(/'/g, '&#039;');
-        }
-
-        function populateYearSelectors() {
-            const currentYear = dayjs().year();
-            const startYear = currentYear - AppConfig.yearSelectorRange;
-            const endYear = currentYear + AppConfig.yearSelectorRange;
-
-            const yearSelects = [
-                elements.weekYearSelect, elements.monthYearSelect, elements.yearSelect,
-                elements.exportMonthYearSelect, elements.exportYearSelect
-            ];
-
-            yearSelects.forEach(select => {
-                if (!select) return;
-                const currentValue = select.value; // Preserve current selection if valid
-                select.innerHTML = ''; // Clear existing options
-                for (let year = endYear; year >= startYear; year--) {
-                    select.appendChild(new Option(year, year));
-                }
-                // Try to restore previous value, otherwise default to current year
-                select.value = (currentValue && select.querySelector(`option[value="${currentValue}"]`)) ? currentValue : currentYear;
-            });
-        }
-
-        function setDefaultDatesAndFilters() {
-            const today = dayjs();
-            const todayStr = today.format('YYYY-MM-DD');
-
-            // Set default dates for Add forms
-            elements.expenseDate.value = todayStr;
-            elements.incomeDate.value = todayStr;
-
-            // Set default values for time period filter dropdowns
-            const currentMonth = today.month() + 1; // 1-12
-            const currentYear = today.year();
-            const currentWeek = getWeekOfMonth(today);
-
-            elements.weekSelect.value = currentWeek;
-            elements.weekMonthSelect.value = currentMonth;
-            elements.weekYearSelect.value = currentYear;
-            elements.monthSelect.value = currentMonth;
-            elements.monthYearSelect.value = currentYear;
-            elements.yearSelect.value = currentYear;
-             console.log("Default dates and filter periods set.");
-        }
-
-        function getWeekOfMonth(dateObj) {
-             // Simple calculation: week = ceiling(day_of_month / 7)
-             // Clamp result to 5 for the "Week 5+" option
-            const dayOfMonth = dateObj.date();
-            return Math.min(Math.ceil(dayOfMonth / 7), 5);
-        }
-
-        function clearActiveTimeFilterButton() {
-            document.querySelectorAll('.time-filter-btn').forEach(btn => btn.classList.remove('active'));
-        }
-
-        function hideSubFilterRows() {
-            document.querySelectorAll('.sub-filter-row').forEach(row => row.style.display = 'none');
-        }
-
-        function updateBulkActionUI() {
-            const selectedCount = selectedTransactionIds.size;
-            const visibleItems = elements.transactionList.querySelectorAll('li[data-id]:not(.transaction-list-item--removing)');
-            const visibleCount = visibleItems.length;
-
-            // Show/Hide Bulk Delete Button
-            elements.bulkDeleteBtn.style.display = selectedCount > 0 ? 'inline-flex' : 'none';
-
-            // Update Select All Checkbox State
-            if (visibleCount === 0) {
-                 // No visible items, disable and uncheck
-                elements.selectAllCheckbox.checked = false;
-                elements.selectAllCheckbox.indeterminate = false;
-                elements.selectAllCheckbox.disabled = true;
-            } else {
-                elements.selectAllCheckbox.disabled = false;
-                if (selectedCount === 0) {
-                    // Nothing selected
-                    elements.selectAllCheckbox.checked = false;
-                    elements.selectAllCheckbox.indeterminate = false;
-                } else if (selectedCount === visibleCount) {
-                    // All visible items selected
-                    elements.selectAllCheckbox.checked = true;
-                    elements.selectAllCheckbox.indeterminate = false;
-                } else {
-                    // Some (but not all) visible items selected
-                    elements.selectAllCheckbox.checked = false;
-                    elements.selectAllCheckbox.indeterminate = true;
-                }
-            }
-        }
-
+        function isValidDate(dateString) { return dayjs(dateString, 'YYYY-MM-DD', true).isValid(); }
+        function formatCurrency(number) { return `$${Number(number).toFixed(2)}`; }
+        function escapeHTML(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
+        function populateYearSelectors() { const currentYear = dayjs().year(); const startYear = currentYear - AppConfig.yearSelectorRange; const endYear = currentYear + AppConfig.yearSelectorRange; const yearSelects = [ elements.weekYearSelect, elements.monthYearSelect, elements.yearSelect, elements.exportMonthYearSelect, elements.exportYearSelect ]; yearSelects.forEach(select => { if (!select) return; const currentValue = select.value; select.innerHTML = ''; for (let year = endYear; year >= startYear; year--) { select.appendChild(new Option(year, year)); } select.value = (currentValue && select.querySelector(`option[value="${currentValue}"]`)) ? currentValue : currentYear; }); }
+        function setDefaultDatesAndFilters() { const today = dayjs(); const todayStr = today.format('YYYY-MM-DD'); elements.expenseDate.value = todayStr; elements.incomeDate.value = todayStr; const currentMonth = today.month() + 1; const currentYear = today.year(); const currentWeek = getWeekOfMonth(today); elements.weekSelect.value = currentWeek; elements.weekMonthSelect.value = currentMonth; elements.weekYearSelect.value = currentYear; elements.monthSelect.value = currentMonth; elements.monthYearSelect.value = currentYear; elements.yearSelect.value = currentYear; console.log("Default dates and filter periods set."); }
+        function getWeekOfMonth(dateObj) { const dayOfMonth = dateObj.date(); return Math.min(Math.ceil(dayOfMonth / 7), 5); }
+        function clearActiveTimeFilterButton() { document.querySelectorAll('.time-filter-btn').forEach(btn => btn.classList.remove('active')); }
+        function hideSubFilterRows() { document.querySelectorAll('.sub-filter-row').forEach(row => row.style.display = 'none'); }
+        function updateBulkActionUI() { const selectedCount = selectedTransactionIds.size; const visibleItems = elements.transactionList.querySelectorAll('li[data-id]:not(.transaction-list-item--removing)'); const visibleCount = visibleItems.length; elements.bulkDeleteBtn.style.display = selectedCount > 0 ? 'inline-flex' : 'none'; if (visibleCount === 0) { elements.selectAllCheckbox.checked = false; elements.selectAllCheckbox.indeterminate = false; elements.selectAllCheckbox.disabled = true; } else { elements.selectAllCheckbox.disabled = false; if (selectedCount === 0) { elements.selectAllCheckbox.checked = false; elements.selectAllCheckbox.indeterminate = false; } else if (selectedCount === visibleCount) { elements.selectAllCheckbox.checked = true; elements.selectAllCheckbox.indeterminate = false; } else { elements.selectAllCheckbox.checked = false; elements.selectAllCheckbox.indeterminate = true; } } }
 
         // --- SECTION: App Start ---
         document.addEventListener('DOMContentLoaded', initializeApp);
