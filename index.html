@@ -261,8 +261,8 @@
 
         // --- Application Configuration & Constants ---
         const AppConfig = {
-            // !!! IMPORTANT: Replace with the NEW Web App URL from your deployed script !!!
-            apiUrl: 'https://script.google.com/macros/s/AKfycbxt79c6P-jUba9wRZSqWSOYOF5K032IVQVguw_VTdMUyMO1VK5jXyAQg0LumqQOIlQVlA/exec', // User Provided URL - UPDATED!
+            // !!! IMPORTANT: Using the NEW Web App URL from your latest deployment !!!
+            apiUrl: 'https://script.google.com/macros/s/AKfycbxt79c6P-jUba9wRZSqWSOYOF5K032IVQVguw_VTdMUyMO1VK5jXyAQg0LumqQOIlQVlA/exec', // User Provided URL - UPDATED AGAIN!
             // apiSecret is NO LONGER NEEDED and has been removed.
             animationDuration: 400, staggerDelayIncrement: 50, notificationDuration: 3000, yearSelectorRange: 5,
             expenseCategories: ["Food & Drink", "Gas", "Personal Care", "Shopping", "Health Care", "Pay Loan", "Other"],
@@ -1832,6 +1832,11 @@
              } else {
                  console.warn("Could not set default user form - role not provided or invalid:", role);
                  // Optionally handle this case, e.g., show a message or leave dropdowns as is.
+                 // If role is null/invalid, maybe default to the first user in the list or show an error?
+                 // For now, it leaves the dropdowns potentially unset if the role isn't matched.
+                 if (elements.expenseUser && AppConfig.users.length > 0) elements.expenseUser.value = AppConfig.users[0];
+                 if (elements.incomeUser && AppConfig.users.length > 0) elements.incomeUser.value = AppConfig.users[0];
+
              }
          }
 
